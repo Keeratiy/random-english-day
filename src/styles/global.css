@@ -1,0 +1,21 @@
+html {
+    font-family: sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+/* Custom toggle styles */
+input[type="checkbox"]:checked + div.toggle {
+    background-color: #3b82f6; /* Tailwind's blue-500 */
+}
+
+input[type="checkbox"]:checked + div.toggle .dot {
+    transform: translateX(100%);
+    background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
