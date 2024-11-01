@@ -7,5 +7,7 @@ export default defineConfig({
         tailwind({
 			applyBaseStyles: false,
 		}),
-    ]
+    ],
+    site: 'https://keeratiy.github.io',
+    base: 'random-english-day',
 });
