@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 
 import TeamMember from '../components/TeamMember.astro';
+import EnglishTopic from '../components/EnglishTopic.astro';
 
 import '../styles/global.css';
 
@@ -14,7 +15,11 @@ const pageTitle = "Random English";
 			<TeamMember />
 		</div>
 		<div class="cols-9 w-full ml-7 h-full">
-			Text
+			<EnglishTopic />
 		</div>
 	</div>
 </Layout>
+
+<script>
+	import "../scripts/Global.js";
+</script>

@@ -1,31 +1,37 @@
 ---
-import { AdminName } from "../config";
+import { Members } from '../config';
+
+let memberList: Record<string, string | boolean>[] = [];
+for (const mem in Members) {
+    memberList.push({ mem, ...Members[mem] });
+}
 ---
 
 <div class="bg-white shadow-md rounded-lg p-4 w-full min-h-[700px] flex flex-col">
     <div class="flex justify-between">
         <h2 class="text-2xl font-semibold mb-4">Team Member</h2>
-        <a role="button" id="btnResetMember" class="pt-1 text-blue-600 hover:opacity-100 opacity-75">Reset</a>
     </div>
     <ul id="templateMember" class="space-y-2 overflow-y-auto flex-grow max-h-[550px]">
-        <li class="flex items-center">
+        {memberList.map((member) => 
+            <li class="flex items-center">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" class="hidden" id={`${member.mem}`} checked>
+                    <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
+                        <div class="dot w-6 h-6 bg-blue-500 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>
+                    </div>
+                    <span class="text-xl ml-3 text-gray-700">{member.mem}</span>
+                </label>
+            </li>
+        )}
+        {/* <li class="flex items-center">
             <label class="flex items-center cursor-pointer">
-                <input type="checkbox" class="hidden" id="member1">
+                <input type="checkbox" class="hidden" id="Koo">
                 <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
                     <div class="dot w-6 h-6 bg-blue-500 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>
                 </div>
                 <span class="text-xl ml-3 text-gray-700">Koo</span>
             </label>
-        </li>
-        <li class="flex items-center">
-            <label class="flex items-center cursor-pointer">
-                <input type="checkbox" class="hidden" id="member1">
-                <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
-                    <div class="dot w-6 h-6 bg-blue-500 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>
-                </div>
-                <span class="text-xl ml-3 text-gray-700">Nuker</span>
-            </label>
-        </li>
+        </li> */}
     </ul>
     <div class="my-4">
         <input id="inputMember" type="text" placeholder="Add a team member" class="border border-gray-200 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
@@ -34,7 +40,3 @@ import { AdminName } from "../config";
         </button>
     </div>
 </div>
-
-<script>
-  import "../scripts/addMember.js";
-</script>
