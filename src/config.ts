@@ -51,5 +51,8 @@ export const Topics: string[] = [
   "Personal Milestones: พูดถึงความสำเร็จหรือเหตุการณ์สำคัญในชีวิต",
   "The Importance of Friendships: หัวข้อเกี่ยวกับมิตรภาพและการสร้างความสัมพันธ์กับเพื่อน",
   "Science and Innovation: พูดถึงการค้นพบทางวิทยาศาสตร์ที่น่าสนใจ หรือเทคโนโลยีใหม่ ๆ ที่กำลังเปลี่ยนโลก",
-  "Describing Your Family Members =ฺ อธิบายเกี่ยวกับสมาชิกในครอบครัว"
+  "Describing Your Family Members: อธิบายเกี่ยวกับสมาชิกในครอบครัว",
+  "Your Free Time: เวลาว่างคุณทำอะไร ",
+  "Describing Your Hometown: อธิบายเกี่ยวกับบ้านเกิดของคุณ",
+  "Talk about Your First Love: พูดคุยเกี่ยวกับรักแรกของคุณ เช่น เจอกันที่ไหน ตอนอายุเท่าไหร่ ทำไมคุณถึงชอบเค้า",
 ];
