@@ -1,4 +1,6 @@
 import { DARK_MODE, LIGHT_MODE, Members, Topics } from "../config";
+import { createAvatar } from '@dicebear/core';
+import { croodles } from '@dicebear/collection';
 let member = [];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -79,11 +81,17 @@ function randomTopicAndMember() {
       template.innerHTML = "";
       for (var i = 0; i < selectMemLength; i++) {
         const randomIndex = Math.floor(Math.random() * selectedMember.length);
+        let avatar = createAvatar(croodles, {
+          seed: selectedMember[randomIndex].mem,
+          size: 80,
+        });
         let html = [];
         html.push(`<div class="flex flex-col items-center">`);
         if (selectedMember[randomIndex].image == null){
           html.push(
-            `<div class="rounded-lg border border-white w-[100px] h-[100px] bg-[#00011E]/35"></div>`,
+            `<img src="${avatar.toDataUri()}" 
+            alt="${selectedMember[randomIndex].mem}" 
+            class="rounded-lg border border-white w-[100px] h-[100px] object-cover" />`,
           );
         } else {
           html.push(

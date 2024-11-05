@@ -7,17 +7,17 @@ export const DARK_MODE = 'dark';
 
 export const Members: Record<string, Record<string, string | boolean>> = {
   Kwan: { image: null, isChecked: true },
-  Mix: { image: null, isChecked: true },
+  Mix: { image: "/random-english-day/images/Mix.JPG", isChecked: true },
   Jam: { image: null, isChecked: true },
   Am: { image: null, isChecked: true },
   Muay: { image: null, isChecked: true },
-  Tata: { image: null, isChecked: true },
+  Tata: { image: "/random-english-day/images/Tata.JPG", isChecked: true },
   Tung: { image: "/random-english-day/images/Tung.jpg", isChecked: true },
-  Nuker: { image: null, isChecked: true },
-  Earth: { image: null, isChecked: true },
-  Nick: { image: null, isChecked: true },
-  Koo: { image: "/random-english-day/images/og-logo.png", isChecked: true },
-  M: { image: null, isChecked: true },
+  Nuker: { image: "/random-english-day/images/nuker.jpg", isChecked: true },
+  Earth: { image: "/random-english-day/images/Earth.JPG", isChecked: true },
+  Nick: { image: "/random-english-day/images/Nick.JPG", isChecked: true },
+  Koo: { image: "/random-english-day/images/Koo.jpg", isChecked: true },
+  M: { image: "/random-english-day/images/M.jpg", isChecked: true },
 };
 
 export const Topics: string[] = [
@@ -51,4 +51,5 @@ export const Topics: string[] = [
   "Personal Milestones: พูดถึงความสำเร็จหรือเหตุการณ์สำคัญในชีวิต",
   "The Importance of Friendships: หัวข้อเกี่ยวกับมิตรภาพและการสร้างความสัมพันธ์กับเพื่อน",
   "Science and Innovation: พูดถึงการค้นพบทางวิทยาศาสตร์ที่น่าสนใจ หรือเทคโนโลยีใหม่ ๆ ที่กำลังเปลี่ยนโลก",
+  "Describing Your Family Members =ฺ อธิบายเกี่ยวกับสมาชิกในครอบครัว"
 ];

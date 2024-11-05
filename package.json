@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.2",
+    "@dicebear/collection": "^9.2.2",
+    "@dicebear/core": "^9.2.2",
     "@iconify/icons-ri": "^1.2.10",
     "@nanostores/persistent": "^0.10.2",
     "astro": "^4.16.7",
