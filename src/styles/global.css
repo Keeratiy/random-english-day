@@ -1,18 +1,19 @@
 html {
-  font-family: sans-serif;
+  font-family: "Oxanium", serif;
+  font-optical-sizing: auto;
 }
 
 * {
   box-sizing: border-box;
 }
 
-h1 {
-  font-size: 2rem;
+h1,h2,h3,h4,p,span {
+  color: white;
 }
 
 /* Custom toggle styles */
 input[type="checkbox"]:checked + div.toggle {
-  background-color: #3b82f6; /* Tailwind's blue-500 */
+  background-color: #F9A060;
 }
 
 input[type="checkbox"]:checked + div.toggle .dot {

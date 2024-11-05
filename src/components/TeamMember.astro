@@ -1,42 +1,51 @@
 ---
-import { Members } from '../config';
+import { Members } from "../config";
+import Card from "./Card.astro";
 
 let memberList: Record<string, string | boolean>[] = [];
 for (const mem in Members) {
-    memberList.push({ mem, ...Members[mem] });
+  memberList.push({ mem, ...Members[mem] });
 }
 ---
 
-<div class="bg-white shadow-md rounded-lg p-4 w-full min-h-[700px] flex flex-col">
+<Card>
+  <div class="min-h-[700px] flex flex-col">
     <div class="flex justify-between">
-        <h2 class="text-2xl font-semibold mb-4">Team Member</h2>
+      <h2 class="text-2xl mb-4">Team Member</h2>
     </div>
-    <ul id="templateMember" class="space-y-2 overflow-y-auto flex-grow max-h-[550px]">
-        {memberList.map((member) => 
-            <li class="flex items-center">
-                <label class="flex items-center cursor-pointer">
-                    <input type="checkbox" class="hidden" id={`${member.mem}`} checked>
-                    <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
-                        <div class="dot w-6 h-6 bg-blue-500 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>
-                    </div>
-                    <span class="text-xl ml-3 text-gray-700">{member.mem}</span>
-                </label>
-            </li>
-        )}
-        {/* <li class="flex items-center">
-            <label class="flex items-center cursor-pointer">
-                <input type="checkbox" class="hidden" id="Koo">
+    <div class="grow">
+      <ul
+        id="templateMember"
+        class="space-y-2 overflow-y-auto flex-grow max-h-[550px]"
+      >
+        {
+          memberList.map((member) => (
+            <li>
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  class="hidden"
+                  id={`${member.mem}`}
+                  checked
+                />
                 <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
-                    <div class="dot w-6 h-6 bg-blue-500 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>
+                  <div class="dot w-6 h-6 bg-[##F9A060] rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out" />
                 </div>
-                <span class="text-xl ml-3 text-gray-700">Koo</span>
-            </label>
-        </li> */}
-    </ul>
-    <div class="my-4">
-        <input id="inputMember" type="text" placeholder="Add a team member" class="border border-gray-200 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
-        <button id="addMember" class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 transition">
-            +
-        </button>
+                <span class="text-xl ml-3">{member.mem}</span>
+              </label>
+            </li>
+          ))
+        }
+      </ul>
     </div>
-</div>
+    <div>
+      <input
+        id="inputMember"
+        type="text"
+        placeholder="Add a team member"
+        class="border border-gray-200 rounded p-2 focus:outline-none text-gray-700 w-full"
+        autocomplete="off"
+      />
+    </div>
+  </div>
+</Card>

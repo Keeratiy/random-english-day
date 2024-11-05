@@ -1,10 +1,11 @@
-import { Members, Topics } from "../config";
+import { DARK_MODE, LIGHT_MODE, Members, Topics } from "../config";
 let member = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   addMember();
   changeStatusMember();
   randomTopicAndMember();
+  switchMode();
 
   for (const mem in Members) {
     member.push({ mem, ...Members[mem] });
@@ -12,39 +13,40 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function addMember() {
-  document.querySelector("#addMember").addEventListener("click", () => {
-    let memberName = document.querySelector("#inputMember").value;
+  document.querySelector("#inputMember").addEventListener("keydown", (event) => {
+    if (event.key === 'Enter') {
+      const memberName = document.querySelector("#inputMember").value;
 
-    if (memberName != "" && memberName != null && memberName != undefined) {
-      let html = [];
-      html.push(`<li class="flex items-center">`);
-      html.push(`<label class="flex items-center cursor-pointer">`);
-      html.push(`<input type="checkbox" class="hidden" id="${memberName}">`);
-      html.push(
-        `<div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">`,
-      );
-      html.push(
-        `<div class="dot w-6 h-6 bg-blue-500 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>`,
-      );
-      html.push(`</div>`);
-      html.push(
-        `<span class="text-xl ml-3 text-gray-700">${memberName}</span>`,
-      );
-      html.push(`</label>`);
-      html.push(`</li>`);
+      if (memberName != "" && memberName != null && memberName != undefined) {
+        let html = [];
+        html.push(`<li class="flex items-center">`);
+        html.push(`<label class="flex items-center cursor-pointer">`);
+        html.push(`<input type="checkbox" class="hidden" checked id="${memberName}">`);
+        html.push(
+          `<div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">`,
+        );
+        html.push(
+          `<div class="dot w-6 h-6 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>`,
+        );
+        html.push(`</div>`);
+        html.push(
+          `<span class="text-xl ml-3">${memberName}</span>`,
+        );
+        html.push(`</label>`);
+        html.push(`</li>`);
 
-      let templateMember = document.querySelector("#templateMember");
-      templateMember.insertAdjacentHTML("beforeend", html.join(""));
-      document.querySelector("#inputMember").value = "";
+        let templateMember = document.querySelector("#templateMember");
+        templateMember.insertAdjacentHTML("beforeend", html.join(""));
+        document.querySelector("#inputMember").value = "";
 
-      // Members[memberName] = { image: 'https://via.placeholder.com/60', isChecked: false };
-      member.push({
-        mem: memberName,
-        image: "https://via.placeholder.com/60",
-        isChecked: false,
-      });
+        member.push({
+          mem: memberName,
+          image: null,
+          isChecked: true,
+        });
 
-      changeStatusMember();
+        changeStatusMember();
+      }
     }
   });
 }
@@ -78,12 +80,20 @@ function randomTopicAndMember() {
       for (var i = 0; i < selectMemLength; i++) {
         const randomIndex = Math.floor(Math.random() * selectedMember.length);
         let html = [];
-        html.push(`<div class="flex flex-col items-center mx-2 mb-4">`);
+        html.push(`<div class="flex flex-col items-center">`);
+        if (selectedMember[randomIndex].image == null){
+          html.push(
+            `<div class="rounded-lg border border-white w-[100px] h-[100px] bg-[#00011E]/35"></div>`,
+          );
+        } else {
+          html.push(
+            `<img src="${selectedMember[randomIndex].image}" 
+            alt="${selectedMember[randomIndex].mem}" 
+            class="rounded-lg border border-white w-[100px] h-[100px] object-cover" />`,
+          );
+        }
         html.push(
-          `<img src="${selectedMember[randomIndex].image}" alt="${selectedMember[randomIndex].mem}" class="rounded-full border-2 border-blue-500 mb-2 w-[100px] h-[100px]  " />`,
-        );
-        html.push(
-          `<span class="text-black">${i + 1}. ${selectedMember[randomIndex].mem}</span>`,
+          `<span class="">${i + 1}. ${selectedMember[randomIndex].mem}</span>`,
         );
         html.push(`</div>`);
         template.insertAdjacentHTML("beforeend", html.join(""));
@@ -94,5 +104,23 @@ function randomTopicAndMember() {
     // Random Topics
     const randomTopicIndex = Math.floor(Math.random() * Topics.length);
     document.querySelector("#topicsName").innerHTML = Topics[randomTopicIndex];
+  });
+}
+
+function switchMode(){
+  document.querySelector("#btnMode").addEventListener("click", () => {
+    const mode = document.getElementById("btnMode");
+    const icMode = document.getElementById("icMode");
+    const body = document.body;
+    if (mode.dataset.mode == LIGHT_MODE) {
+      icMode.src = "/random-english-day/icons/dark_mode.svg";
+      body.style.backgroundImage = "url('/random-english-day/images/background/light.jpg')";
+      mode.dataset.mode = DARK_MODE;
+
+    } else {
+      icMode.src = "/random-english-day/icons/light_mode.svg";
+      body.style.backgroundImage = "url('/random-english-day/images/background/dark.jpg')";
+      mode.dataset.mode = LIGHT_MODE;
+    }
   });
 }

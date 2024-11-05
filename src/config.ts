@@ -2,19 +2,22 @@ export const SiteTitle = "Random English Day";
 export const AdminName = "Ladit";
 export const PageSize = 15;
 
+export const LIGHT_MODE = 'light';
+export const DARK_MODE = 'dark';
+
 export const Members: Record<string, Record<string, string | boolean>> = {
-  Kwan: { image: "https://via.placeholder.com/60", isChecked: true },
-  Mix: { image: "https://via.placeholder.com/60", isChecked: true },
-  Jam: { image: "https://via.placeholder.com/60", isChecked: true },
-  Am: { image: "https://via.placeholder.com/60", isChecked: true },
-  Muay: { image: "https://via.placeholder.com/60", isChecked: true },
-  Tata: { image: "https://via.placeholder.com/60", isChecked: true },
+  Kwan: { image: null, isChecked: true },
+  Mix: { image: null, isChecked: true },
+  Jam: { image: null, isChecked: true },
+  Am: { image: null, isChecked: true },
+  Muay: { image: null, isChecked: true },
+  Tata: { image: null, isChecked: true },
   Tung: { image: "/random-english-day/images/Tung.jpg", isChecked: true },
-  Nuker: { image: "https://via.placeholder.com/60", isChecked: true },
-  Earth: { image: "https://via.placeholder.com/60", isChecked: true },
-  Nick: { image: "https://via.placeholder.com/60", isChecked: true },
-  Koo: { image: "/src/assets/og-logo.png", isChecked: true },
-  M: { image: "https://via.placeholder.com/60", isChecked: true },
+  Nuker: { image: null, isChecked: true },
+  Earth: { image: null, isChecked: true },
+  Nick: { image: null, isChecked: true },
+  Koo: { image: "/random-english-day/images/og-logo.png", isChecked: true },
+  M: { image: null, isChecked: true },
 };
 
 export const Topics: string[] = [

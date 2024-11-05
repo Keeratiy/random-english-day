@@ -1,18 +1,24 @@
 ---
 import { SiteTitle } from "../config";
+import Card from "./Card.astro";
 ---
 
-<header
-  class="grid grid-cols-2 items-start justify-between lg:flex px-[2dvw] pt-[2dvh]"
->
-  <h1>
-    <button
-      type="button"
-      class="text-neutral-700 opacity-75 aria-pressed:opacity-100 hover:opacity-100 dark:text-neutral-50"
-    >
-      <a href="/">{SiteTitle}</a>
-    </button>
-  </h1>
+<header>
+  <Card>
+    <div class="flex flex-row justify-between">
+      <h1 class="text-2xl">
+        {SiteTitle}
+      </h1>
+      <div class="hover:cursor-pointer" id="btnMode" data-mode="light">
+        <img
+          id="icMode"
+          src="/random-english-day/icons/dark_mode.svg"
+          width="30px"
+          height="30px"
+        />
+      </div>
+    </div>
+  </Card>
 </header>
 
 <script></script>
