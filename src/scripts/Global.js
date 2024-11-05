@@ -121,13 +121,13 @@ function switchMode(){
     const icMode = document.getElementById("icMode");
     const body = document.body;
     if (mode.dataset.mode == LIGHT_MODE) {
-      icMode.src = "/random-english-day/icons/dark_mode.svg";
-      body.style.backgroundImage = "url('/random-english-day/images/background/light.jpg')";
+      icMode.src = "/random-english-day/icons/light_mode.svg";
+      body.style.backgroundImage = "url('/random-english-day/images/background/dark.jpg')";
       mode.dataset.mode = DARK_MODE;
 
     } else {
-      icMode.src = "/random-english-day/icons/light_mode.svg";
-      body.style.backgroundImage = "url('/random-english-day/images/background/dark.jpg')";
+      icMode.src = "/random-english-day/icons/dark_mode.svg";
+      body.style.backgroundImage = "url('/random-english-day/images/background/light.jpg')";
       mode.dataset.mode = LIGHT_MODE;
     }
   });
