@@ -6,9 +6,12 @@ import Card from "./Card.astro";
 <header>
   <Card>
     <div class="flex flex-row justify-between">
-      <h1 class="text-2xl">
+      <div>
+      <span class="text-3xl">
         {SiteTitle}
-      </h1>
+      </span>
+      <span id="time" class="text-3xl"></span>
+    </div>
       <div class="hover:cursor-pointer" id="btnMode" data-mode="light">
         <img
           id="icMode"
@@ -21,4 +24,19 @@ import Card from "./Card.astro";
   </Card>
 </header>
 
-<script></script>
+<script>
+  function updateDateTime() {
+    const now = new Date();
+
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const formattedDateTime = ` : ${hours}:${minutes}:${seconds}`;
+
+    const timeElement = document.getElementById("time");
+    timeElement.innerHTML = formattedDateTime;
+
+  }
+  setInterval(updateDateTime, 1000);
+  updateDateTime();
+</script>
