@@ -1,25 +1,25 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 
-import TeamMember from '../components/TeamMember.astro';
-import EnglishTopic from '../components/EnglishTopic.astro';
+import TeamMember from "../components/TeamMember.astro";
+import EnglishTopic from "../components/EnglishTopic.astro";
 
-import '../styles/global.css';
+import "../styles/global.css";
 
 const pageTitle = "Random English";
 ---
 
 <Layout pageTitle={pageTitle}>
-	<div class="flex justify-between">
-		<div class="cols-3 items-start w-4/12 h-full">
-			<TeamMember />
-		</div>
-		<div class="cols-9 w-full ml-7 h-full">
-			<EnglishTopic />
-		</div>
-	</div>
+  <div class="flex justify-between">
+    <div class="cols-3 items-start w-4/12 h-full">
+      <TeamMember />
+    </div>
+    <div class="cols-9 w-full ml-7 h-full">
+      <EnglishTopic />
+    </div>
+  </div>
 </Layout>
 
 <script>
-	import "../scripts/Global.js";
+  import "../scripts/Global.js";
 </script>
