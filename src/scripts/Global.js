@@ -95,9 +95,11 @@ function randomTopicAndMember() {
           );
         } else {
           html.push(
-            `<img src="${selectedMember[randomIndex].image}" 
-            alt="${selectedMember[randomIndex].mem}" 
-            class="rounded-lg border border-white w-[100px] h-[100px] object-cover" />`,
+            `<div class="image-container rounded-lg" style="--data-image:url(${selectedMember[randomIndex].image})" >
+              <img src="${selectedMember[randomIndex].image}" 
+              alt="${selectedMember[randomIndex].mem}"
+              class="rounded-lg border border-white image" />
+            </div>`,
           );
         }
         html.push(

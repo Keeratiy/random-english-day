@@ -8,7 +8,7 @@ export const DARK_MODE = 'dark';
 export const Members: Record<string, Record<string, string | boolean>> = {
   Kwan: { image: null, isChecked: true },
   Mix: { image: "/random-english-day/images/Mix.JPG", isChecked: true },
-  Jam: { image: null, isChecked: true },
+  Jam: { image: "/random-english-day/images/Jam.jpg", isChecked: true },
   Am: { image: null, isChecked: true },
   Muay: { image: null, isChecked: true },
   Tata: { image: "/random-english-day/images/Tata.JPG", isChecked: true },

@@ -1,3 +1,7 @@
+:root {
+  --data-image: '';
+}
+
 html {
   font-family: "Oxanium", serif;
   font-optical-sizing: auto;
@@ -19,4 +23,32 @@ input[type="checkbox"]:checked + div.toggle {
 input[type="checkbox"]:checked + div.toggle .dot {
   transform: translateX(100%);
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
+.image-container {
+  position: relative;
+  width: 100px; 
+  height: 100px;
+  overflow: hidden;
+}
+
+.image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--data-image);
+  background-size: cover;
+  filter: blur(2px);
+  z-index: 1;
+}
+
+.image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
 }
