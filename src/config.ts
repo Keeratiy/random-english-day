@@ -9,7 +9,7 @@ export const Members: Record<string, Record<string, string | boolean>> = {
   Kwan: { image: "/random-english-day/images/Kwan.jpg", isChecked: true },
   Mix: { image: "/random-english-day/images/Mix.JPG", isChecked: true },
   Jam: { image: "/random-english-day/images/Jam.jpg", isChecked: true },
-  Am: { image: null, isChecked: true },
+  Am: { image: "/random-english-day/images/Am.jpg", isChecked: true },
   Muay: { image: "/random-english-day/images/Muay.jpg", isChecked: true },
   Tata: { image: "/random-english-day/images/Tata.JPG", isChecked: true },
   Tung: { image: "/random-english-day/images/Tung.jpg", isChecked: true },
