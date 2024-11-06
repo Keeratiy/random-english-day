@@ -6,11 +6,11 @@ export const LIGHT_MODE = 'light';
 export const DARK_MODE = 'dark';
 
 export const Members: Record<string, Record<string, string | boolean>> = {
-  Kwan: { image: null, isChecked: true },
+  Kwan: { image: "/random-english-day/images/Kwan.jpg", isChecked: true },
   Mix: { image: "/random-english-day/images/Mix.JPG", isChecked: true },
   Jam: { image: "/random-english-day/images/Jam.jpg", isChecked: true },
   Am: { image: null, isChecked: true },
-  Muay: { image: null, isChecked: true },
+  Muay: { image: "/random-english-day/images/Muay.jpg", isChecked: true },
   Tata: { image: "/random-english-day/images/Tata.JPG", isChecked: true },
   Tung: { image: "/random-english-day/images/Tung.jpg", isChecked: true },
   Nuker: { image: "/random-english-day/images/nuker.jpg", isChecked: true },
