@@ -2,6 +2,10 @@ import { DARK_MODE, LIGHT_MODE, Members, Topics } from "../config";
 import { createAvatar } from '@dicebear/core';
 import { croodles } from '@dicebear/collection';
 let member = [];
+let timerInterval;
+let totalTime = 3600; // 1 hour 
+let timePerMember = 0;
+let currentMemberIndex = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
   addMember();
@@ -12,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   for (const mem in Members) {
     member.push({ mem, ...Members[mem] });
   }
+
 });
 
 function addMember() {
@@ -69,11 +74,17 @@ function changeStatusMember() {
 
 function randomTopicAndMember() {
   document.querySelector("#btnRandom").addEventListener("click", () => {
+   
     const template = document.querySelector("#tempRandomMember");
     template.innerHTML = "";
     const selectedMember = member.filter((item) => {
       return item.isChecked === true;
     });
+
+ 
+    const currentTime = totalTime; 
+    timePerMember = Math.floor(totalTime / selectedMember.length);
+    let timeDisplay = ''
 
     if (selectedMember.length > 0) {
       const selectMemLength = selectedMember.length;
@@ -101,19 +112,25 @@ function randomTopicAndMember() {
               class="rounded-lg border border-white image" />
             </div>`,
           );
-        }
+        }       
         html.push(
           `<span class="">${i + 1}. ${selectedMember[randomIndex].mem}</span>`,
         );
         html.push(`</div>`);
         template.insertAdjacentHTML("beforeend", html.join(""));
         selectedMember.splice(randomIndex, 1);
+
+        timeDisplay = formattedTime(timePerMember);
       }
     }
+
+    // Timer
+    document.querySelector("#timer").innerHTML = timeDisplay;
 
     // Random Topics
     const randomTopicIndex = Math.floor(Math.random() * Topics.length);
     document.querySelector("#topicsName").innerHTML = Topics[randomTopicIndex];
+    setActive(currentMemberIndex)
   });
 }
 
@@ -134,3 +151,81 @@ function switchMode(){
     }
   });
 }
+
+function updateTimerDisplay(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  document.querySelector("#timer").innerHTML = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function formattedTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function setActive(index){
+  const listMember = document.querySelectorAll('#tempRandomMember > div > .image-container');
+  listMember.forEach((item, index) => {
+    item.classList.remove('current-member');
+  });
+  listMember[index].classList.add('current-member');
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (timePerMember > 0) {
+      timePerMember--;  
+      updateTimerDisplay(timePerMember);
+
+    } else {
+      clearInterval(timerInterval);
+      nextMember() 
+    
+    }
+  }, 1000);
+}
+
+function nextMember() {
+
+  currentMemberIndex++;
+  if (currentMemberIndex < member.length) {
+    timePerMember = Math.floor(totalTime / member.length);
+    stopTimer()
+    updateTimerDisplay(timePerMember)
+    setActive(currentMemberIndex)
+  } else {
+    clearInterval(timerInterval);
+  }
+}
+
+function backMember() {
+
+  currentMemberIndex--;
+  if (currentMemberIndex < member.length) {
+    timePerMember = Math.floor(totalTime / member.length);
+    stopTimer()
+    updateTimerDisplay(timePerMember)
+    setActive(currentMemberIndex)
+  } else {
+    clearInterval(timerInterval);
+  }
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timePerMember = Math.floor(totalTime / member.length);
+    updateTimerDisplay(timePerMember)
+}
+
+document.querySelector("#btnStart").addEventListener("click", startTimer);
+document.querySelector("#btnStop").addEventListener("click", stopTimer);
+document.querySelector("#btnReset").addEventListener("click", resetTimer);
+document.querySelector("#btnNext").addEventListener("click", nextMember);
+document.querySelector("#btnBack").addEventListener("click", backMember);
+

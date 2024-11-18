@@ -52,3 +52,9 @@ input[type="checkbox"]:checked + div.toggle .dot {
   object-fit: contain;
   z-index: 2;
 }
+
+.current-member {
+  border: 2px solid #ff6347; 
+  padding: 10px;
+  background-color: rgba(255, 99, 71, 0.1); 
+}
