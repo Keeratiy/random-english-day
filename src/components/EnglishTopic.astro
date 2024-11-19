@@ -1,11 +1,11 @@
 ---
 import { Members } from "../config";
 import Card from "./Card.astro";
-
 let memberList: Record<string, string | boolean>[] = [];
 for (const mem in Members) {
   memberList.push({ mem, ...Members[mem] });
 }
+;
 ---
 
 <div class="flex flex-col gap-4">
@@ -28,10 +28,63 @@ for (const mem in Members) {
   </Card>
   <Card>
     <div
+      class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-3 min-h-[90px]"
+    >
+    <div class="flex items-center justify-between space-x-4 my-auto">
+      <div class= justify-start">
+        <img
+          class="hover:cursor-pointer"
+          id="btnBack"
+          src="/random-english-day/images/icon/back.png"
+          width="30px"
+          height="30px"
+        />
+      </div>
+     
+      <div class="flex items-center justify-center space-x-2">
+      <img
+        class="hover:cursor-pointer"
+        id="btnReset"
+        src="/random-english-day/images/icon/reset.png"
+        width="40px"
+        height="40px"
+      />
+      <div id="btnStart">
+      <img
+      class="hover:cursor-pointer"
+      id="icStart"
+      src="/random-english-day/images/icon/start.png"
+      width="50px"
+      height="50px"
+    />
+  </div>
+      
+    <p id="timer" class="text-2xl md:text-3xl lg:text-4xl col-span-full mt-2">
+      00:00</p>
+      </div>
+      
+      <div class="flex justify-end">
+        <img
+          class="hover:cursor-pointer"
+          id="btnNext"
+          src="/random-english-day/images/icon/next.png"
+          width="30px"
+          height="30px"
+        />
+      </div>
+    </div>
+    </div>
+  </Card>
+  <Card>
+    <div
       id="tempRandomMember"
       class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 min-h-[400px]"
     >
       <p class="text-2xl md:text-3xl lg:text-4xl col-span-full text-center my-auto">Just click random</p>
     </div>
   </Card>
+  
+  
+  
 </div>
+<script>

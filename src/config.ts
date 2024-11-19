@@ -4,6 +4,8 @@ export const PageSize = 15;
 
 export const LIGHT_MODE = 'light';
 export const DARK_MODE = 'dark';
+export const START = 'start';
+export const STOP = 'stop';
 
 export const Members: Record<string, Record<string, string | boolean>> = {
   Kwan: { image: "/random-english-day/images/Kwan.jpg", isChecked: true },

@@ -1,4 +1,5 @@
 ---
+
 import { Members } from "../config";
 import Card from "./Card.astro";
 
@@ -9,14 +10,14 @@ for (const mem in Members) {
 ---
 
 <Card>
-  <div class="min-h-[700px] flex flex-col">
-    <div class="flex justify-between">
+  <div class="min-h-[700px] flex flex-col ">
+    <div class="flex justify-between ">
       <h2 class="text-2xl mb-4">Team Member</h2>
     </div>
     <div class="grow">
       <ul
         id="templateMember"
-        class="space-y-2 overflow-y-auto flex-grow max-h-[550px]"
+        class="space-y-2 scrollable overflow-y-auto flex-grow max-h-[550px]"
       >
         {
           memberList.map((member) => (
