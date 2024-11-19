@@ -54,7 +54,44 @@ input[type="checkbox"]:checked + div.toggle .dot {
 }
 
 .current-member {
-  border: 2px solid #ff6347; 
-  padding: 10px;
-  background-color: rgba(255, 99, 71, 0.1); 
+  animation: rainbow-shadow 5s infinite linear;
+}
+
+@keyframes rainbow-shadow {
+  0% {
+    box-shadow: 0 0 10px 7px #3fdcf7;
+  }
+  14% {
+    box-shadow: 0 0 10px 7px #1890ff;
+  }
+  28% {
+    box-shadow: 0 0 10px 7px #6813cb;
+  }
+  42% {
+    box-shadow: 0 0 10px 7px #ff003d;
+  }
+  57% {
+    box-shadow: 0 0 10px 7px #ff8a00;
+  }
+  71% {
+    box-shadow: 0 0 10px 7px #ffd600;
+  }
+  85% {
+    box-shadow: 0 0 10px 7px #67be23;
+  }
+  100% {
+    box-shadow: 0 0 10px 7px #3fdcf7;
+  }
+}
+
+
+.scrollable {
+  overflow: auto; 
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+
+  /* สำหรับ WebKit-based browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
