@@ -3,7 +3,7 @@ import { createAvatar } from '@dicebear/core';
 import { croodles } from '@dicebear/collection';
 let member = [];
 let timerInterval;
-let totalTime = 90; // 1 hour 
+let totalTime = 3600; // 1 hour 
 let timePerMember = 0;
 let currentMemberIndex = 0;
 const startBtn = document.getElementById("btnStart");
