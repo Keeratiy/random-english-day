@@ -82,8 +82,7 @@ function randomTopicAndMember() {
     
     const selectedMember = member.filter((item) => item.isChecked);
 
-    timePerMember = Math.floor(totalTime / selectedMember.length);
-    let timeDisplay = ''
+    
 
     if (selectedMember.length > 0) {
       const selectMemLength = selectedMember.length;
@@ -118,23 +117,34 @@ function randomTopicAndMember() {
         html.push(`</div>`);
         template.insertAdjacentHTML("beforeend", html.join(""));
         selectedMember.splice(randomIndex, 1);
-        timeDisplay = formattedTime(timePerMember);
+        
       }
     }
 
-    // Timer
-    document.querySelector("#timer").innerHTML = timeDisplay;
 
     // Random Topics
     const randomTopicIndex = Math.floor(Math.random() * Topics.length);
     document.querySelector("#topicsName").innerHTML = Topics[randomTopicIndex];
 
     currentMemberIndex = 0
+    Timer();
     setActive(currentMemberIndex)
     updateUIForStart(icStart, startBtn)
     updateButtonVisibility()
-    resetTimer();
+    
   });
+}
+
+function Timer(){
+  clearInterval(timerInterval);
+  const selectedMember = member.filter((item) => item.isChecked);
+  let timeDisplay = ''
+  timePerMember = Math.floor(totalTime / selectedMember.length);
+  timeDisplay = formattedTime(timePerMember);
+
+    // Timer
+  document.querySelector("#timer").innerHTML = timeDisplay;
+
 }
 
 function switchMode(){
@@ -202,10 +212,7 @@ function setActive(index){
   });
   if (listMember[index]) { 
     listMember[index].classList.add('current-member');
-  }
-  console.log(member);
-  console.log(listMember);
-  
+  }  
 }
 
 function startTimer() {
@@ -222,11 +229,10 @@ function startTimer() {
 }
 
 function nextMember() {
-  clearInterval(timerInterval);
+  Timer()
   currentMemberIndex++;
   updateButtonVisibility()
   if (currentMemberIndex < member.length) {
-    timePerMember = Math.floor(totalTime / member.length);
     startTimer()
     updateUIForStop(icStart, startBtn)
     updateTimerDisplay(timePerMember)
@@ -239,11 +245,10 @@ function nextMember() {
 }
 
 function backMember() {
-  clearInterval(timerInterval);
+  Timer()
   currentMemberIndex--;
   updateButtonVisibility()
   if (currentMemberIndex < member.length) {
-    timePerMember = Math.floor(totalTime / member.length);
     startTimer()
     updateUIForStop(icStart, startBtn)
     updateTimerDisplay(timePerMember)
@@ -261,8 +266,7 @@ function stopTimer() {
 }
 
 function resetTimer() {
-  clearInterval(timerInterval);
-  timePerMember = Math.floor(totalTime / member.length);
+  Timer()
   updateTimerDisplay(timePerMember)
   updateUIForStart(icStart, startBtn)
 }
