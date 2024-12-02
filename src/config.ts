@@ -22,6 +22,7 @@ export const Members: Record<string, Record<string, string | boolean>> = {
   M: { image: "/random-english-day/images/M.jpg", isChecked: true },
   Aon: { image: "/random-english-day/images/Aon.JPG", isChecked: true },
   Tee: { image: "/random-english-day/images/Tee.jpg", isChecked: true },
+  Fern: { image: "/random-english-day/images/Fern.jpg", isChecked: true },
 };
 
 export const Topics: string[] = [
