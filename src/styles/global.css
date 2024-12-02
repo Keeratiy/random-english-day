@@ -95,3 +95,8 @@ input[type="checkbox"]:checked + div.toggle .dot {
     display: none;
   }
 }
+
+.disabled-btn {
+  opacity: 0.5;
+  pointer-events: none; 
+}

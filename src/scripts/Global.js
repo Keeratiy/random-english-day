@@ -6,20 +6,71 @@ let timerInterval;
 let totalTime = 3600; // 1 hour 
 let timePerMember = 0;
 let currentMemberIndex = 0;
+let bestTime = 0 ;
 const startBtn = document.getElementById("btnStart");
 const icStart = document.getElementById("icStart");
+const totalTimeModal = document.getElementById("timeModal");
+const totalTimeDisplay = document.getElementById("totalTime");
+const saveTotalTimeBtn = document.getElementById("saveTotalTime");
+const btnAdd = document.querySelector("#btnAdd");
+const btnReduce = document.querySelector("#btnReduce");
 document.addEventListener("DOMContentLoaded", () => {
   addMember();
   changeStatusMember();
   randomTopicAndMember();
   switchMode();
   switchStartStop();
-
+  updateTimeDisplay();
   for (const mem in Members) {
     member.push({ mem, ...Members[mem] });
   }
 
 });
+
+
+
+
+function updateTimeDisplay() {
+  const minutes = Math.floor(totalTime / 60);
+  const seconds = totalTime % 60;
+  totalTimeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+document.querySelector("#timer").addEventListener("click", () => {
+  totalTimeModal.classList.remove("hidden");
+  btnAdd.classList.add('disabled-btn');
+});
+
+btnAdd.addEventListener("click", () => {
+  if (totalTime < 3600) {
+    btnReduce.classList.remove('disabled-btn');
+    totalTime += 300; // เพิ่มทีละ 5 นาที
+    updateTimeDisplay();
+    if(totalTime === 3600){
+      btnAdd.classList.add('disabled-btn');
+    }
+  } else {
+    btnAdd.disabled = true;
+  }
+});
+
+btnReduce.addEventListener("click", () => {
+  if (totalTime > 1200) {
+    btnAdd.classList.remove('disabled-btn');
+    totalTime -= 300; // ลดทีละ 5 นาที
+    updateTimeDisplay();
+    if(totalTime === 1200){
+      btnReduce.classList.add('disabled-btn');
+    }
+  } else {
+    btnReduce.disabled = true; 
+  }
+});
+
+saveTotalTimeBtn.addEventListener("click", () => {
+  timeModal.classList.add("hidden");
+  resetTimer();
+});
+
 
 function addMember() {
   document.querySelector("#inputMember").addEventListener("keydown", (event) => {
@@ -70,6 +121,8 @@ function changeStatusMember() {
       if (selectedMember) {
         selectedMember.isChecked = ele.target.checked;
       }
+
+      updateBestTimeDisplay();
     });
   });
 }
@@ -131,6 +184,7 @@ function randomTopicAndMember() {
     setActive(currentMemberIndex)
     updateUIForStart(icStart, startBtn)
     updateButtonVisibility()
+    updateBestTimeDisplay();
     
   });
 }
@@ -138,13 +192,22 @@ function randomTopicAndMember() {
 function Timer(){
   clearInterval(timerInterval);
   const selectedMember = member.filter((item) => item.isChecked);
+
   let timeDisplay = ''
   timePerMember = Math.floor(totalTime / selectedMember.length);
   timeDisplay = formattedTime(timePerMember);
 
+
     // Timer
   document.querySelector("#timer").innerHTML = timeDisplay;
 
+
+}
+function updateBestTimeDisplay() {
+  const selectedMember = member.filter((item) => item.isChecked);
+  console.log(selectedMember)
+  bestTime = Math.floor(selectedMember.length * 3)
+  document.querySelector("#bestTimeTotal").textContent = `The ideal time is ${bestTime} minutes`;
 }
 
 function switchMode(){
