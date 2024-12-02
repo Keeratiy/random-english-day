@@ -37,7 +37,9 @@ function updateTimeDisplay() {
 }
 document.querySelector("#timer").addEventListener("click", () => {
   totalTimeModal.classList.remove("hidden");
-  btnAdd.classList.add('disabled-btn');
+  if(totalTime === 3600){
+    btnAdd.classList.add('disabled-btn');
+  }
 });
 
 btnAdd.addEventListener("click", () => {
