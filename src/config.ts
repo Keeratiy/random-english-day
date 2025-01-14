@@ -17,12 +17,12 @@ export const Members: Record<string, Record<string, string | boolean>> = {
   Tung: { image: "/random-english-day/images/Tung.jpg", isChecked: true },
   Nuker: { image: "/random-english-day/images/nuker.jpg", isChecked: true },
   Earth: { image: "/random-english-day/images/Earth.JPG", isChecked: true },
-  Nick: { image: "/random-english-day/images/Nick.JPG", isChecked: true },
   Koo: { image: "/random-english-day/images/Koo.jpg", isChecked: true },
   M: { image: "/random-english-day/images/M.jpg", isChecked: true },
   Aon: { image: "/random-english-day/images/Aon.JPG", isChecked: true },
   Tee: { image: "/random-english-day/images/Tee.jpg", isChecked: true },
   Fern: { image: "/random-english-day/images/Fern.jpg", isChecked: true },
+  Yo: { image: "/random-english-day/images/Yo.jpg", isChecked: true },
 };
 
 export const Topics: string[] = [
