@@ -1,17 +1,29 @@
 ---
-import { SiteTitle } from "../config";
-import Card from "./Card.astro";
+import { SiteTitle } from '../config';
+import Card from './Card.astro';
 ---
 
 <header>
   <Card>
     <div class="flex flex-row justify-between">
-      <div>
-      <span class="text-3xl">
-        {SiteTitle}
-      </span>
-      <span id="time" class="text-3xl"></span>
-    </div>
+      <div class="flex justify-center items-center">
+        <span class="text-3xl">
+          {SiteTitle}
+        </span>
+        <span id="time" class="text-3xl"></span>
+        <div class="ms-4 text-3xl flex">
+          {
+            Array(12)
+              .fill(null)
+              .map((_, index) => (
+                <div
+                  id={`volumn_lv_${index + 1}`}
+                  class="border-2 h-8 w-3 me-2 rounded"
+                />
+              ))
+          }
+        </div>
+      </div>
       <div class="hover:cursor-pointer" id="btnMode" data-mode="light">
         <img
           id="icMode"
@@ -33,10 +45,90 @@ import Card from "./Card.astro";
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const formattedDateTime = ` : ${hours}:${minutes}:${seconds}`;
 
-    const timeElement = document.getElementById("time");
+    const timeElement = document.getElementById('time');
     timeElement.innerHTML = formattedDateTime;
-
   }
+
+  const accessUserMicrophone = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+
+      if (stream) {
+        processAudioStream(stream);
+      }
+      return stream;
+    } catch (e) {
+      console.error(e);
+      alert('ไม่สามารถเข้าถึงไมโครโฟนของ user ได้');
+      return;
+    }
+  };
+
+  const processAudioStream = (stream: MediaStream) => {
+    if (!stream.getAudioTracks().length) {
+      console.error('No audio track available in the MediaStream');
+      return;
+    }
+
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(stream);
+    const analyser = audioContext.createAnalyser();
+
+    analyser.fftSize = 1024;
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    source.connect(analyser);
+
+    function update() {
+      analyser.getByteFrequencyData(dataArray); // ดึงข้อมูลเสียง
+
+      const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length; // คำนวณระดับเสียงเฉลี่ย
+
+      const colors = [
+        '#ffff00',
+        '#ffee00',
+        '#ffd900',
+        '#ffc300',
+        '#ffad00',
+        '#ff9500',
+        '#ff7d00',
+        '#ff6500',
+        '#ff4c00',
+        '#ff3300',
+        '#ff1a00',
+        '#ff0000',
+      ];
+
+      colors.forEach((color, index) => {
+        const bar = document.getElementById(`volumn_lv_${index + 1}`);
+        if (bar) {
+          if (volume > (index + 1) * 10) {
+            bar.style.backgroundColor = color;
+          } else {
+            bar.style.backgroundColor = '';
+          }
+        }
+      });
+
+      // เรียกใช้ซ้ำสำหรับการอัปเดต
+      requestAnimationFrame(update);
+    }
+
+    update();
+  };
+
+  async function initMicrophone() {
+    const stream = await accessUserMicrophone();
+    if (stream) {
+      // processAudioStream(stream);
+    } else {
+      console.error('Microphone not available');
+    }
+  }
+
+  initMicrophone();
   setInterval(updateDateTime, 1000);
   updateDateTime();
 </script>
