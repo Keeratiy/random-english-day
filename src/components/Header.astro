@@ -55,9 +55,6 @@ import Card from './Card.astro';
         audio: true,
       });
 
-      if (stream) {
-        processAudioStream(stream);
-      }
       return stream;
     } catch (e) {
       console.error(e);
@@ -72,20 +69,21 @@ import Card from './Card.astro';
       return;
     }
 
-    const audioContext = new AudioContext();
+    const audioContext = new AudioContext(); //create AudioContext instance
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
 
-    analyser.fftSize = 1024;
+    analyser.fftSize = 1024; // assigned Fast Fourier Transform value
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-    source.connect(analyser);
+    source.connect(analyser); //connect with analyser
 
     function update() {
-      analyser.getByteFrequencyData(dataArray); // ดึงข้อมูลเสียง
+      analyser.getByteFrequencyData(dataArray); // get sound data
 
-      const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length; // คำนวณระดับเสียงเฉลี่ย
+      const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length; // calculation sound volumn level average
 
+      //color sound level
       const colors = [
         '#ffff00',
         '#ffee00',
@@ -112,7 +110,7 @@ import Card from './Card.astro';
         }
       });
 
-      // เรียกใช้ซ้ำสำหรับการอัปเดต
+      // loop update sound volume level
       requestAnimationFrame(update);
     }
 
@@ -120,9 +118,9 @@ import Card from './Card.astro';
   };
 
   async function initMicrophone() {
-    const stream = await accessUserMicrophone();
+    const stream = await accessUserMicrophone(); // request for permission to access microphone
     if (stream) {
-      // processAudioStream(stream);
+      processAudioStream(stream); // send stream for process audio
     } else {
       console.error('Microphone not available');
     }
