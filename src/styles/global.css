@@ -99,3 +99,7 @@ input[type="checkbox"]:checked + div.toggle .dot {
   opacity: 0.5;
   pointer-events: none; /* Prevent clicks when disabled */
 }
+
+#topicsName {
+  line-height: 3.5rem !important;
+}
