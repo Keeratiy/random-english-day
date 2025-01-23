@@ -6,12 +6,12 @@ import Card from './Card.astro';
 <header>
   <Card>
     <div class="flex flex-row justify-between">
-      <div class="flex max-[768px]:flex-col justify-center items-center">
+      <div class="flex justify-center items-center">
         <span class="text-3xl">
           {SiteTitle}
         </span>
         <span id="time" class="text-3xl"></span>
-        <div class="ms-4 text-3xl flex">
+        <div class="ms-4 text-3xl max-[1025px]:hidden flex" id="volumn_lv">
           {
             Array(12)
               .fill(null)
@@ -118,13 +118,27 @@ import Card from './Card.astro';
   };
 
   async function initMicrophone() {
-    const stream = await accessUserMicrophone(); // request for permission to access microphone
-    if (stream) {
-      processAudioStream(stream); // send stream for process audio
-    } else {
-      console.error('Microphone not available');
-    }
+  const element = document.getElementById("volumn_lv");
+
+  if (!isDesktop()) {
+    console.warn("Microphone access is only available on Desktop.");
+    element.classList.add("hidden"); // เพิ่มคลาสซ่อน
+    return;
   }
+
+  const stream = await accessUserMicrophone();
+  if (stream) {
+    processAudioStream(stream);
+  } else {
+    console.error("Microphone not available");
+  }
+}
+
+  function isDesktop() {
+  const userAgent = navigator.userAgent;
+
+  return !/Mobi|Android|Tablet|iPad/i.test(userAgent);
+}
 
   initMicrophone();
   setInterval(updateDateTime, 1000);
