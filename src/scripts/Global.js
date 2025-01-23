@@ -171,7 +171,8 @@ function randomTopicAndMember() {
 
     const randomTopicIndex = Math.floor(Math.random() * Topics.length);
     const topicElement = document.getElementById("topicsName");
-    randomTextAnimation(topicElement, Topics[randomTopicIndex]);
+    // topicElement.innerHTML = Topics[randomTopicIndex];
+    typewriterAnimation(topicElement, Topics[randomTopicIndex]);
 
     currentMemberIndex = 0;
     Timer();
@@ -182,35 +183,36 @@ function randomTopicAndMember() {
   });
 }
 
-function randomTextAnimation(element, fullText) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789กขฃคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮ";
-  const animationDuration = 2000;
-  const frameInterval = 50;
-  const totalFrames = Math.round(animationDuration / frameInterval);
-  let currentFrame = 0;
+function typewriterAnimation(element, fullText) {
+  const animationSpeed = 50;
+  let index = 0;
 
-  const interval = setInterval(() => {
-    currentFrame++;
-    if (currentFrame <= totalFrames) {
-      const randomText = fullText
-        .split("")
-        .map((char, index) => {
-          if (index < currentFrame * (fullText.length / totalFrames)) {
-            return char; // แสดงตัวอักษรจริงเมื่อถึง Frame ของตัวอักษรตัวนั้น
-          }
-          return characters.charAt(
-            Math.floor(Math.random() * characters.length),
-          ); // ตัวอักษรสุ่ม
-        })
-        .join("");
+  // เคลียร์ข้อความก่อนเริ่ม Animation
+  element.innerHTML = "";
 
-      element.innerHTML = randomText; // อัปเดตข้อความ
+  const cursor = document.createElement("span");
+  cursor.classList.add("cursor");
+  cursor.textContent = "|"; // cursor symbol
+  element.appendChild(cursor);
+
+  function update() {
+    if (index < fullText.length) {
+      // แทรกตัวอักษรถัดไปทีละตัว
+      const char = document.createTextNode(fullText[index]);
+      cursor.before(char); // ใส่ตัวอักษรไว้ก่อน cursor
+      index++;
+
+      // เลื่อน cursor ไปบรรทัดถัดไปเมื่อข้อความตกบรรทัด
+      element.scrollTop = element.scrollHeight;
+
+      setTimeout(update, animationSpeed);
     } else {
-      clearInterval(interval); // จบ Animation
-      element.innerHTML = fullText; // แสดงข้อความเต็ม
+      // ลบ cursor ตอนเสร็จ
+      cursor.remove();
     }
-  }, frameInterval);
+  }
+
+  update(); // เริ่ม Animation
 }
 
 function Timer() {
