@@ -185,7 +185,7 @@ function randomTopicAndMember() {
 function randomTextAnimation(element, fullText) {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789กขฃคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮ";
-  const animationDuration = 1500;
+  const animationDuration = 2000;
   const frameInterval = 50;
   const totalFrames = Math.round(animationDuration / frameInterval);
   let currentFrame = 0;
