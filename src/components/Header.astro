@@ -12,16 +12,12 @@ import Card from './Card.astro';
         </span>
         <span id="time" class="text-3xl"></span>
         <div class="ms-4 text-3xl max-[1025px]:hidden flex" id="volumn_lv">
-          {
-            Array(12)
-              .fill(null)
-              .map((_, index) => (
-                <div
-                  id={`volumn_lv_${index + 1}`}
-                  class="border-2 h-8 w-3 me-2 rounded"
-                />
-              ))
-          }
+          {Array.from({ length: 12 }, (_, index) => (
+            <div
+              id={`volumn_lv_${index + 1}`}
+              class="border-2 h-8 w-3 me-2 rounded"
+            />
+          ))}
         </div>
       </div>
       <div class="hover:cursor-pointer" id="btnMode" data-mode="light">
