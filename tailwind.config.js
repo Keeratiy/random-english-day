@@ -17,7 +17,7 @@ export default {
   },
   plugins: [
     typography,
-    scrollbar(),
+    scrollbar,
     // taken from https://github.com/tailwindlabs/tailwindcss.com/blob/master/tailwind.config.js
     // function ({ addVariant }) {
     // 	addVariant('children', '& > *');
