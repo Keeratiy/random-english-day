@@ -1,0 +1,17 @@
+export const Members: Record<string, Record<string, string | boolean>> = {
+  Kwan: { image: "/random-english-day/images/Kwan.jpg", isChecked: true },
+  Mix: { image: "/random-english-day/images/Mix.JPG", isChecked: true },
+  Jam: { image: "/random-english-day/images/Jam.jpg", isChecked: true },
+  Am: { image: "/random-english-day/images/Am.jpg", isChecked: true },
+  Muay: { image: "/random-english-day/images/Muay.jpg", isChecked: true },
+  Tata: { image: "/random-english-day/images/Tata.JPG", isChecked: true },
+  Tung: { image: "/random-english-day/images/Tung.jpg", isChecked: true },
+  Nuker: { image: "/random-english-day/images/nuker.jpg", isChecked: true },
+  Earth: { image: "/random-english-day/images/Earth.JPG", isChecked: true },
+  Koo: { image: "/random-english-day/images/Koo.jpg", isChecked: true },
+  M: { image: "/random-english-day/images/M.jpg", isChecked: true },
+  Aon: { image: "/random-english-day/images/Aon.JPG", isChecked: true },
+  Tee: { image: "/random-english-day/images/Tee.jpg", isChecked: true },
+  Fern: { image: "/random-english-day/images/Fern.jpg", isChecked: true },
+  Yo: { image: "/random-english-day/images/Yo.jpg", isChecked: true },
+};

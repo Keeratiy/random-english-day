@@ -1,4 +1,6 @@
-import { DARK_MODE, LIGHT_MODE, Members, Topics, START, STOP } from "../config";
+import { DARK_MODE, LIGHT_MODE, START, STOP } from "../config";
+import { Members } from "../data/members";
+import { Topics } from "../data/topics";
 import { createAvatar } from "@dicebear/core";
 import { croodles } from "@dicebear/collection";
 let member = [];
