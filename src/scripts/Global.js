@@ -3,365 +3,428 @@ import { Members } from "../data/members";
 import { Topics } from "../data/topics";
 import { createAvatar } from "@dicebear/core";
 import { croodles } from "@dicebear/collection";
-let member = [];
-let timerInterval;
-let totalTime = 3600; // 1 hour
-let timePerMember = 0;
-let currentMemberIndex = 0;
-let bestTime = 0;
-const startBtn = document.getElementById("btnStart");
-const icStart = document.getElementById("icStart");
-const totalTimeModal = document.getElementById("timeModal");
-const totalTimeDisplay = document.getElementById("totalTime");
-const saveTotalTimeBtn = document.getElementById("saveTotalTime");
-const btnAdd = document.querySelector("#btnAdd");
-const btnReduce = document.querySelector("#btnReduce");
+
+const DEFAULT_TOTAL_TIME = 3600;
+const MIN_TOTAL_TIME = 600;
+const TIME_STEP = 300;
+const TYPEWRITER_SPEED = 50;
+
+const state = {
+  members: buildInitialMembers(),
+  randomizedMembers: [],
+  totalTime: DEFAULT_TOTAL_TIME,
+  timePerMember: 0,
+  currentMemberIndex: 0,
+  timerInterval: null,
+  typewriterTimeout: null,
+};
+
+const elements = {
+  bestTime: document.querySelector("#bestTimeTotal"),
+  btnAdd: document.querySelector("#btnAdd"),
+  btnBack: document.querySelector("#btnBack"),
+  btnMode: document.querySelector("#btnMode"),
+  btnNext: document.querySelector("#btnNext"),
+  btnRandom: document.querySelector("#btnRandom"),
+  btnReduce: document.querySelector("#btnReduce"),
+  btnReset: document.querySelector("#btnReset"),
+  btnStart: document.querySelector("#btnStart"),
+  inputMember: document.querySelector("#inputMember"),
+  modeIcon: document.querySelector("#icMode"),
+  saveTotalTime: document.querySelector("#saveTotalTime"),
+  startIcon: document.querySelector("#icStart"),
+  templateMember: document.querySelector("#templateMember"),
+  timer: document.querySelector("#timer"),
+  timeModal: document.querySelector("#timeModal"),
+  topicName: document.querySelector("#topicsName"),
+  totalTime: document.querySelector("#totalTime"),
+  randomMember: document.querySelector("#tempRandomMember"),
+};
+
 document.addEventListener("DOMContentLoaded", () => {
-  addMember();
-  changeStatusMember();
-  randomTopicAndMember();
-  switchMode();
-  switchStartStop();
-  updateTimeDisplay();
-  for (const mem in Members) {
-    member.push({ mem, ...Members[mem] });
+  if (!hasRequiredElements()) {
+    return;
   }
-});
 
-function updateTimeDisplay() {
-  const minutes = Math.floor(totalTime / 60);
-  const seconds = totalTime % 60;
-  totalTimeDisplay.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
-document.querySelector("#timer").addEventListener("click", () => {
-  totalTimeModal.classList.remove("hidden");
-  if (totalTime === 3600) {
-    btnAdd.classList.add("disabled-btn");
-  }
-});
-
-btnAdd.addEventListener("click", () => {
-  if (totalTime < 3600) {
-    btnReduce.classList.remove("disabled-btn");
-    totalTime += 300; // เพิ่มทีละ 5 นาที
-    updateTimeDisplay();
-    if (totalTime === 3600) {
-      btnAdd.classList.add("disabled-btn");
-    }
-  } else {
-    btnAdd.disabled = true;
-  }
-});
-
-btnReduce.addEventListener("click", () => {
-  if (totalTime > 1200) {
-    btnAdd.classList.remove("disabled-btn");
-    totalTime -= 300; // ลดทีละ 5 นาที
-    updateTimeDisplay();
-    if (totalTime === 1200) {
-      btnReduce.classList.add("disabled-btn");
-    }
-  } else {
-    btnReduce.disabled = true;
-  }
-});
-
-saveTotalTimeBtn.addEventListener("click", () => {
-  timeModal.classList.add("hidden");
+  bindEvents();
+  updateBestTimeDisplay();
+  updateTotalTimeDisplay();
   resetTimer();
+  updateNavigationButtons();
 });
 
-function addMember() {
-  document
-    .querySelector("#inputMember")
-    .addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        const memberName = document.querySelector("#inputMember").value;
-
-        if (memberName != "" && memberName != null && memberName != undefined) {
-          let html = [];
-          html.push(`<li class="flex items-center">`);
-          html.push(`<label class="flex items-center cursor-pointer">`);
-          html.push(
-            `<input type="checkbox" class="hidden" checked id="${memberName}">`,
-          );
-          html.push(
-            `<div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">`,
-          );
-          html.push(
-            `<div class="dot w-6 h-6 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>`,
-          );
-          html.push(`</div>`);
-          html.push(`<span class="text-xl ml-3">${memberName}</span>`);
-          html.push(`</label>`);
-          html.push(`</li>`);
-
-          let templateMember = document.querySelector("#templateMember");
-          templateMember.insertAdjacentHTML("beforeend", html.join(""));
-          document.querySelector("#inputMember").value = "";
-
-          member.push({
-            mem: memberName,
-            image: null,
-            isChecked: true,
-          });
-
-          changeStatusMember();
-        }
-      }
-    });
+function buildInitialMembers() {
+  return Object.entries(Members).map(([mem, member]) => ({
+    mem,
+    image: member.image,
+    isChecked: Boolean(member.isChecked),
+  }));
 }
 
-function changeStatusMember() {
-  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("click", function (ele) {
-      let name = ele.target.id;
-      const selectedMember = member.find((member) => member.mem === name);
+function hasRequiredElements() {
+  return Object.values(elements).every(Boolean);
+}
 
-      if (selectedMember) {
-        selectedMember.isChecked = ele.target.checked;
-      }
-
-      updateBestTimeDisplay();
-    });
+function bindEvents() {
+  elements.inputMember.addEventListener("keydown", handleAddMember);
+  elements.templateMember.addEventListener("change", handleMemberToggle);
+  elements.btnRandom.addEventListener("click", handleRandomize);
+  elements.btnMode.addEventListener("click", toggleMode);
+  elements.btnStart.addEventListener("click", toggleTimer);
+  elements.btnReset.addEventListener("click", resetTimer);
+  elements.btnNext.addEventListener("click", () => changeMember(1));
+  elements.btnBack.addEventListener("click", () => changeMember(-1));
+  elements.timer.addEventListener("click", openTimeModal);
+  elements.btnAdd.addEventListener("click", () => adjustTotalTime(TIME_STEP));
+  elements.btnReduce.addEventListener("click", () =>
+    adjustTotalTime(-TIME_STEP),
+  );
+  elements.saveTotalTime.addEventListener("click", () => {
+    elements.timeModal.classList.add("hidden");
+    resetTimer();
   });
 }
 
-function randomTopicAndMember() {
-  document.querySelector("#btnRandom").addEventListener("click", () => {
-    const template = document.querySelector("#tempRandomMember");
-    template.innerHTML = "";
+function handleAddMember(event) {
+  if (event.key !== "Enter") {
+    return;
+  }
 
-    const selectedMember = member.filter((item) => item.isChecked);
+  const memberName = elements.inputMember.value.trim();
+  if (!memberName) {
+    return;
+  }
 
-    if (selectedMember.length > 0) {
-      const selectMemLength = selectedMember.length;
-      const template = document.querySelector("#tempRandomMember");
-      template.innerHTML = "";
-      for (var i = 0; i < selectMemLength; i++) {
-        const randomIndex = Math.floor(Math.random() * selectedMember.length);
-        let avatar = createAvatar(croodles, {
-          seed: selectedMember[randomIndex].mem,
-          size: 80,
-        });
-        let html = [];
-        html.push(`<div class="flex flex-col items-center">`);
-        if (selectedMember[randomIndex].image == null) {
-          html.push(
-            `<img src="${avatar.toDataUri()}" 
-            alt="${selectedMember[randomIndex].mem}" 
-            class="image-container rounded-lg border border-white w-[100px] h-[100px] object-cover" />`,
-          );
-        } else {
-          html.push(
-            `<div class="image-container rounded-lg" style="--data-image:url(${selectedMember[randomIndex].image})" >
-              <img src="${selectedMember[randomIndex].image}" 
-              alt="${selectedMember[randomIndex].mem}"
-              class="rounded-lg border border-white image" />
-            </div>`,
-          );
-        }
-        html.push(
-          `<span class="mt-2">${i + 1}. ${selectedMember[randomIndex].mem}</span>`,
-        );
-        html.push(`</div>`);
-        template.insertAdjacentHTML("beforeend", html.join(""));
-        selectedMember.splice(randomIndex, 1);
-      }
-    }
+  const existingMember = state.members.find(
+    (member) => member.mem.toLowerCase() === memberName.toLowerCase(),
+  );
+  if (existingMember) {
+    elements.inputMember.value = "";
+    return;
+  }
 
-    const randomTopicIndex = Math.floor(Math.random() * Topics.length);
-    const topicElement = document.getElementById("topicsName");
-    // topicElement.innerHTML = Topics[randomTopicIndex];
-    typewriterAnimation(topicElement, Topics[randomTopicIndex]);
-
-    currentMemberIndex = 0;
-    Timer();
-    setActive(currentMemberIndex);
-    updateUIForStart(icStart, startBtn);
-    updateButtonVisibility();
-    updateBestTimeDisplay();
+  state.members.push({
+    mem: memberName,
+    image: null,
+    isChecked: true,
   });
+
+  elements.templateMember.insertAdjacentHTML(
+    "beforeend",
+    createMemberTemplate(memberName),
+  );
+  elements.inputMember.value = "";
+  updateBestTimeDisplay();
 }
 
-function typewriterAnimation(element, fullText) {
-  const animationSpeed = 50;
-  let index = 0;
+function handleMemberToggle(event) {
+  const checkbox = event.target.closest('input[type="checkbox"]');
+  if (!checkbox) {
+    return;
+  }
 
-  // เคลียร์ข้อความก่อนเริ่ม Animation
-  element.innerHTML = "";
+  const selectedMember = state.members.find(
+    (member) => member.mem === checkbox.id,
+  );
+  if (!selectedMember) {
+    return;
+  }
+
+  selectedMember.isChecked = checkbox.checked;
+  updateBestTimeDisplay();
+}
+
+function handleRandomize() {
+  state.randomizedMembers = shuffleMembers(getSelectedMembers());
+  state.currentMemberIndex = 0;
+
+  renderRandomizedMembers();
+  animateTopic(getRandomTopic());
+  resetTimer();
+  setCurrentMember(state.currentMemberIndex);
+  updateNavigationButtons();
+  updateBestTimeDisplay();
+}
+
+function createMemberTemplate(memberName) {
+  return `
+    <li class="flex items-center">
+      <label class="flex items-center cursor-pointer">
+        <input type="checkbox" class="hidden" checked id="${memberName}">
+        <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
+          <div class="dot w-6 h-6 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>
+        </div>
+        <span class="text-xl ml-3">${memberName}</span>
+      </label>
+    </li>
+  `;
+}
+
+function getSelectedMembers() {
+  return state.members.filter((member) => member.isChecked);
+}
+
+function shuffleMembers(members) {
+  const pool = [...members];
+  const randomizedMembers = [];
+
+  while (pool.length > 0) {
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    randomizedMembers.push(pool.splice(randomIndex, 1)[0]);
+  }
+
+  return randomizedMembers;
+}
+
+function renderRandomizedMembers() {
+  if (state.randomizedMembers.length === 0) {
+    elements.randomMember.innerHTML = `
+      <p class="text-2xl md:text-3xl lg:text-4xl col-span-full text-center my-auto">
+        Select at least one member
+      </p>
+    `;
+    return;
+  }
+
+  const cardsMarkup = state.randomizedMembers
+    .map((member, index) => createRandomMemberCard(member, index))
+    .join("");
+  elements.randomMember.innerHTML = cardsMarkup;
+}
+
+function createRandomMemberCard(member, index) {
+  const imageMarkup = member.image
+    ? `
+        <div class="image-container rounded-lg" style="--data-image:url(${member.image})">
+          <img
+            src="${member.image}"
+            alt="${member.mem}"
+            class="rounded-lg border border-white image"
+          />
+        </div>
+      `
+    : `
+        <img
+          src="${createAvatar(croodles, { seed: member.mem, size: 80 }).toDataUri()}"
+          alt="${member.mem}"
+          class="image-container rounded-lg border border-white w-[100px] h-[100px] object-cover"
+        />
+      `;
+
+  return `
+    <div class="flex flex-col items-center">
+      ${imageMarkup}
+      <span class="mt-2">${index + 1}. ${member.mem}</span>
+    </div>
+  `;
+}
+
+function getRandomTopic() {
+  const randomTopicIndex = Math.floor(Math.random() * Topics.length);
+  return Topics[randomTopicIndex];
+}
+
+function animateTopic(fullText) {
+  clearTypewriterTimeout();
+  elements.topicName.innerHTML = "";
 
   const cursor = document.createElement("span");
   cursor.classList.add("cursor");
-  cursor.textContent = "|"; // cursor symbol
-  element.appendChild(cursor);
+  cursor.textContent = "|";
+  elements.topicName.appendChild(cursor);
 
-  function update() {
-    if (index < fullText.length) {
-      // แทรกตัวอักษรถัดไปทีละตัว
-      const char = document.createTextNode(fullText[index]);
-      cursor.before(char); // ใส่ตัวอักษรไว้ก่อน cursor
-      index++;
-
-      // เลื่อน cursor ไปบรรทัดถัดไปเมื่อข้อความตกบรรทัด
-      element.scrollTop = element.scrollHeight;
-
-      setTimeout(update, animationSpeed);
-    } else {
-      // ลบ cursor ตอนเสร็จ
+  let index = 0;
+  const writeNextCharacter = () => {
+    if (index >= fullText.length) {
       cursor.remove();
+      state.typewriterTimeout = null;
+      return;
     }
+
+    cursor.before(document.createTextNode(fullText[index]));
+    index += 1;
+    elements.topicName.scrollTop = elements.topicName.scrollHeight;
+    state.typewriterTimeout = window.setTimeout(
+      writeNextCharacter,
+      TYPEWRITER_SPEED,
+    );
+  };
+
+  writeNextCharacter();
+}
+
+function clearTypewriterTimeout() {
+  if (state.typewriterTimeout) {
+    clearTimeout(state.typewriterTimeout);
+    state.typewriterTimeout = null;
+  }
+}
+
+function updateTotalTimeDisplay() {
+  elements.totalTime.textContent = formatTime(state.totalTime);
+  updateTimeButtons();
+}
+
+function updateTimeButtons() {
+  elements.btnAdd.classList.toggle(
+    "disabled-btn",
+    state.totalTime >= DEFAULT_TOTAL_TIME,
+  );
+  elements.btnReduce.classList.toggle(
+    "disabled-btn",
+    state.totalTime <= MIN_TOTAL_TIME,
+  );
+}
+
+function openTimeModal() {
+  elements.timeModal.classList.remove("hidden");
+  updateTimeButtons();
+}
+
+function adjustTotalTime(change) {
+  const nextTotalTime = Math.min(
+    DEFAULT_TOTAL_TIME,
+    Math.max(MIN_TOTAL_TIME, state.totalTime + change),
+  );
+
+  if (nextTotalTime === state.totalTime) {
+    return;
   }
 
-  update(); // เริ่ม Animation
+  state.totalTime = nextTotalTime;
+  updateTotalTimeDisplay();
 }
 
-function Timer() {
-  clearInterval(timerInterval);
-  const selectedMember = member.filter((item) => item.isChecked);
-
-  let timeDisplay = "";
-  timePerMember = Math.floor(totalTime / selectedMember.length);
-  timeDisplay = formattedTime(timePerMember);
-
-  // Timer
-  document.querySelector("#timer").innerHTML = timeDisplay;
+function resetTimer() {
+  stopTimer();
+  state.timePerMember = calculateTimePerMember();
+  updateTimerDisplay(state.timePerMember);
+  setTimerButtonToStart();
 }
+
+function calculateTimePerMember() {
+  const memberCount =
+    state.randomizedMembers.length || getSelectedMembers().length;
+
+  if (memberCount === 0) {
+    return 0;
+  }
+
+  return Math.floor(state.totalTime / memberCount);
+}
+
 function updateBestTimeDisplay() {
-  const selectedMember = member.filter((item) => item.isChecked);
-  console.log(selectedMember);
-  bestTime = Math.floor(selectedMember.length * 3);
-  document.querySelector("#bestTimeTotal").textContent =
-    `The ideal time is ${bestTime} minutes`;
+  const bestTime = getSelectedMembers().length * 3;
+  elements.bestTime.textContent = `The ideal time is ${bestTime} minutes`;
 }
 
-function switchMode() {
-  document.querySelector("#btnMode").addEventListener("click", () => {
-    const mode = document.getElementById("btnMode");
-    const icMode = document.getElementById("icMode");
-    const body = document.body;
-    if (mode.dataset.mode == LIGHT_MODE) {
-      icMode.src = "/random-english-day/icons/light_mode.svg";
-      body.style.backgroundImage =
-        "url('/random-english-day/images/background/dark.jpg')";
-      mode.dataset.mode = DARK_MODE;
-    } else {
-      icMode.src = "/random-english-day/icons/dark_mode.svg";
-      body.style.backgroundImage =
-        "url('/random-english-day/images/background/light.jpg')";
-      mode.dataset.mode = LIGHT_MODE;
-    }
-  });
+function toggleMode() {
+  if (elements.btnMode.dataset.mode === LIGHT_MODE) {
+    elements.modeIcon.src = "/random-english-day/icons/light_mode.svg";
+    document.body.style.backgroundImage =
+      "url('/random-english-day/images/background/dark.jpg')";
+    elements.btnMode.dataset.mode = DARK_MODE;
+    return;
+  }
+
+  elements.modeIcon.src = "/random-english-day/icons/dark_mode.svg";
+  document.body.style.backgroundImage =
+    "url('/random-english-day/images/background/light.jpg')";
+  elements.btnMode.dataset.mode = LIGHT_MODE;
 }
 
-function switchStartStop() {
-  document.querySelector("#btnStart").addEventListener("click", () => {
-    if (startBtn.dataset.start == START) {
-      updateUIForStart(icStart, startBtn);
-      stopTimer();
-    } else {
-      updateUIForStop(icStart, startBtn);
-      startTimer();
-    }
-  });
+function toggleTimer() {
+  if (elements.btnStart.dataset.start === START) {
+    stopTimer();
+    setTimerButtonToStart();
+    return;
+  }
+
+  if (state.timePerMember <= 0) {
+    return;
+  }
+
+  setTimerButtonToStop();
+  startTimer();
 }
 
-function updateUIForStart(icStart, startBtn) {
-  icStart.src = "/random-english-day/images/icon/start.png";
-  startBtn.dataset.start = STOP;
+function setTimerButtonToStart() {
+  elements.startIcon.src = "/random-english-day/images/icon/start.png";
+  elements.btnStart.dataset.start = STOP;
 }
 
-function updateUIForStop(icStart, startBtn) {
-  icStart.src = "/random-english-day/images/icon/stop.png";
-  startBtn.dataset.start = START;
+function setTimerButtonToStop() {
+  elements.startIcon.src = "/random-english-day/images/icon/stop.png";
+  elements.btnStart.dataset.start = START;
 }
 
-function updateButtonVisibility() {
-  const listMember = document.querySelectorAll(
-    "#tempRandomMember > div > .image-container",
-  );
-  document.querySelector("#btnBack").style.display =
-    currentMemberIndex === 0 ? "none" : "block";
-  document.querySelector("#btnNext").style.display =
-    currentMemberIndex === listMember.length - 1 ? "none" : "block";
+function updateNavigationButtons() {
+  const hasMembers = state.randomizedMembers.length > 0;
+  elements.btnBack.style.display =
+    hasMembers && state.currentMemberIndex > 0 ? "block" : "none";
+  elements.btnNext.style.display =
+    hasMembers && state.currentMemberIndex < state.randomizedMembers.length - 1
+      ? "block"
+      : "none";
 }
 
 function updateTimerDisplay(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  document.querySelector("#timer").innerHTML =
-    `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+  elements.timer.innerHTML = formatTime(seconds);
 }
 
-function formattedTime(seconds) {
+function formatTime(seconds) {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+
+  return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+    .toString()
+    .padStart(2, "0")}`;
 }
 
-function setActive(index) {
-  const listMember = document.querySelectorAll(
-    "#tempRandomMember > div > .image-container",
-  );
-  listMember.forEach((item) => {
-    item.classList.remove("current-member");
-  });
-  if (listMember[index]) {
-    listMember[index].classList.add("current-member");
+function setCurrentMember(index) {
+  const memberCards =
+    elements.randomMember.querySelectorAll(".image-container");
+  memberCards.forEach((card) => card.classList.remove("current-member"));
+
+  if (memberCards[index]) {
+    memberCards[index].classList.add("current-member");
   }
 }
 
 function startTimer() {
-  timerInterval = setInterval(() => {
-    if (timePerMember > 0) {
-      timePerMember--;
-      updateTimerDisplay(timePerMember);
-    } else {
-      clearInterval(timerInterval);
+  stopTimer();
+
+  state.timerInterval = window.setInterval(() => {
+    if (state.timePerMember <= 0) {
+      stopTimer();
+      return;
     }
+
+    state.timePerMember -= 1;
+    updateTimerDisplay(state.timePerMember);
   }, 1000);
 }
 
-function nextMember() {
-  Timer();
-  currentMemberIndex++;
-  updateButtonVisibility();
-  if (currentMemberIndex < member.length) {
-    startTimer();
-    updateUIForStop(icStart, startBtn);
-    updateTimerDisplay(timePerMember);
-    setActive(currentMemberIndex);
-  } else {
-    clearInterval(timerInterval);
+function changeMember(direction) {
+  const nextIndex = state.currentMemberIndex + direction;
+  if (nextIndex < 0 || nextIndex >= state.randomizedMembers.length) {
+    return;
   }
-}
 
-function backMember() {
-  Timer();
-  currentMemberIndex--;
-  updateButtonVisibility();
-  if (currentMemberIndex < member.length) {
+  state.currentMemberIndex = nextIndex;
+  resetTimer();
+  setCurrentMember(state.currentMemberIndex);
+  updateNavigationButtons();
+
+  if (state.randomizedMembers.length > 0) {
+    setTimerButtonToStop();
     startTimer();
-    updateUIForStop(icStart, startBtn);
-    updateTimerDisplay(timePerMember);
-    setActive(currentMemberIndex);
-  } else {
-    clearInterval(timerInterval);
   }
 }
 
 function stopTimer() {
-  clearInterval(timerInterval);
-  timerInterval = null;
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
 }
-
-function resetTimer() {
-  Timer();
-  updateTimerDisplay(timePerMember);
-  updateUIForStart(icStart, startBtn);
-}
-
-document.querySelector("#btnReset").addEventListener("click", resetTimer);
-document.querySelector("#btnNext").addEventListener("click", nextMember);
-document.querySelector("#btnBack").addEventListener("click", backMember);

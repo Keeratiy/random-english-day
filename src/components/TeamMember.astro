@@ -26,7 +26,7 @@ for (const mem in Members) {
                   type="checkbox"
                   class="hidden"
                   id={`${member.mem}`}
-                  checked
+                  checked={member.isChecked as boolean}
                 />
                 <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
                   <div class="dot w-6 h-6 bg-[##F9A060] rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out" />
