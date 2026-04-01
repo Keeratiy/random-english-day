@@ -1,10 +1,13 @@
-<div id="timeModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
-    <div class=" p-6  w-96  bg-[#00011E]/35 border rounded-3xl backdrop-blur-md">
-      <h2 class="text-2xl mb-4 text-center ">Set Total Time</h2>
-      <div class="flex flex-col items-center space-y-4">
-        <div class="flex items-center justify-center space-x-2">
+<div id="timeModal" class="fixed inset-0 z-50 bg-slate-950/72 px-4 backdrop-blur-md" style="display: none;">
+  <div class="w-full max-w-md rounded-[32px] border border-white/12 bg-[rgba(10,14,34,0.82)] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.45)] sm:p-7">
+    <h2 class="text-center text-2xl font-semibold text-white sm:text-3xl">Set Total Time</h2>
+    <p class="mt-2 text-center text-sm text-white/55">
+      Adjust the full session duration. The system will divide time evenly across the randomized queue.
+    </p>
+    <div class="mt-6 flex flex-col items-center space-y-5">
+      <div class="flex items-center justify-center space-x-3">
             <img
-              class="hover:cursor-pointer mr-4"
+              class="hover:cursor-pointer rounded-full border border-white/10 bg-white/8 p-2"
               id="btnReduce"
               src="/random-english-day/images/icon/reduce.png"
               width="45px"
@@ -13,12 +16,12 @@
            
         <p
           id="totalTime"
-          class="text-2xl md:text-3xl lg:text-4xl col-span-full mt-2 ">
+          class="min-w-[150px] rounded-full border border-white/10 bg-white/8 px-5 py-3 text-center text-2xl font-semibold tracking-[0.12em] text-white md:text-3xl lg:text-4xl">
           60:00
         </p>
         <div id="btnAdd">
             <img
-            class="hover:cursor-pointer ml-3"
+            class="hover:cursor-pointer rounded-full border border-white/10 bg-white/8 p-2"
             src="/random-english-day/images/icon/add.png"
             width="45px"
             height="45px"
@@ -26,15 +29,16 @@
         </div>
         
       </div>
-      <div class="flex justify-end space-x-4">
-        <button id="saveTotalTime" class="bg-orange-400 text-white text-2xl px-4 py-2 rounded-md w-80">Confirm</button>
+      <div class="flex w-full justify-end">
+        <button id="saveTotalTime" class="w-full rounded-2xl bg-[#ff8f52] px-4 py-3 text-lg font-semibold text-slate-950 transition hover:bg-[#ffa067] sm:text-xl">Confirm</button>
       </div>
     </div>
-    <div class="flex justify-center space-x-4 mt-2">
+    <div class="mt-4 flex justify-center space-x-4">
         <p
           id="bestTimeTotal"
-          class="text-sm md:text-sm lg:text-sm col-span-full mt-2 ">
+          class="text-sm text-white/58">
           The ideal time is 60 minutes.
         </p>
-      </div>
+    </div>
   </div>
+</div>

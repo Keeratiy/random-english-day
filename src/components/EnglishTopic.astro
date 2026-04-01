@@ -10,91 +10,160 @@ for (const mem in Members) {
 
 <div class="flex flex-col gap-4">
   <Card>
-    <div class="flex flex-col">
-      <div class="flex justify-between">
-        <h2 class="text-2xl p-2">Today Topic</h2>
-        <div class="hover:cursor-pointer" id="btnRandom">
+    <section class="dashboard-panel gap-5">
+      <div
+        class="flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-start lg:justify-between"
+      >
+        <div class="max-w-3xl">
+          <p class="panel-eyebrow">Conversation prompt</p>
+          <h2 class="text-2xl font-semibold text-white sm:text-3xl">
+            Today Topic
+          </h2>
+        </div>
+        <div
+          class="hover:cursor-pointer inline-flex items-center gap-3 self-start rounded-full border border-white/12 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white/75"
+          id="btnRandom"
+        >
           <img
             src="/random-english-day/icons/random.svg"
             width="30px"
             height="30px"
           />
+          Shuffle topic
         </div>
       </div>
-      <div class="flex justify-center p-4 mt-6 mb-4 min-h-26">
+      <div
+        class="hero-topic-wrap mt-1 flex min-h-[180px] items-center justify-center rounded-[24px] border border-white/10 px-4 py-6 sm:px-6 lg:min-h-[220px]"
+      >
         <p
           id="topicsName"
-          class="text-2xl md:text-3xl block max-w-[1000px] overflow-hidden break-words whitespace-normal text-center"
+          class="block max-w-[1000px] overflow-hidden break-words whitespace-normal text-center text-3xl font-semibold leading-tight text-white"
         >
           Just click random
         </p>
       </div>
-    </div>
+    </section>
   </Card>
   <Card>
-    <div
-      class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-3 min-h-[90px]"
-    >
-      <div class="flex items-center justify-between space-x-4 my-auto">
-        <div class='justify-start"'>
-          <img
-            class="hover:cursor-pointer"
-            id="btnBack"
-            src="/random-english-day/images/icon/back.png"
-            width="30px"
-            height="30px"
-          />
+    <section class="dashboard-panel gap-4">
+      <div
+        class="session-toolbar flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"
+      >
+        <div
+          class="session-overview flex min-w-0 flex-1 flex-wrap items-stretch gap-3"
+        >
+          <div class="hidden" aria-hidden="true">
+            <span id="queueMemberCount">0</span>
+          </div>
+          <div
+            class="metric-tile metric-tile-compact min-w-[140px] sm:min-w-[156px]"
+          >
+            <span class="metric-label">Per turn</span>
+            <span id="timePerMemberLabel" class="metric-value">00:00</span>
+          </div>
+          <div
+            class="metric-tile metric-tile-compact session-current flex-1 min-w-[220px]"
+          >
+            <span class="metric-label">Now speaking</span>
+            <span id="currentSpeakerLabel" class="metric-value metric-value-sm"
+              >Waiting to start</span
+            >
+          </div>
         </div>
-
-        <div class="flex items-center justify-center space-x-2">
-          <img
-            class="hover:cursor-pointer"
-            id="btnReset"
-            src="/random-english-day/images/icon/reset.png"
-            width="40px"
-            height="40px"
-          />
-          <div id="btnStart">
+        <div
+          class="control-cluster flex w-full flex-wrap items-center justify-center gap-3 rounded-[24px] border border-white/10 bg-black/15 px-3 py-3 xl:w-auto xl:flex-nowrap xl:justify-end xl:px-4"
+        >
+          <button
+            id="btnBack"
+            type="button"
+            aria-label="Previous speaker"
+            class="control-icon-btn"
+          >
             <img
-              class="hover:cursor-pointer"
+              src="/random-english-day/images/icon/back.png"
+              width="20px"
+              height="20px"
+              alt=""
+            />
+          </button>
+          <button
+            id="btnReset"
+            type="button"
+            aria-label="Reset timer"
+            class="control-icon-btn"
+          >
+            <img
+              src="/random-english-day/images/icon/reset.png"
+              width="22px"
+              height="22px"
+              alt=""
+            />
+          </button>
+          <button
+            id="btnStart"
+            type="button"
+            aria-label="Start or stop timer"
+            class="control-start-btn"
+          >
+            <img
               id="icStart"
               src="/random-english-day/images/icon/start.png"
-              width="50px"
-              height="50px"
+              width="28px"
+              height="28px"
+              alt=""
             />
-          </div>
+          </button>
 
-          <p
+          <button
             id="timer"
-            class="text-2xl md:text-3xl lg:text-4xl col-span-full mt-2 cursor-pointer"
+            type="button"
+            class="timer-pill min-w-[132px] px-4 py-3 text-center text-2xl font-semibold tracking-[0.1em] text-white md:text-3xl"
           >
             60:00
-          </p>
-        </div>
+          </button>
 
-        <div class="flex justify-end">
-          <img
-            class="hover:cursor-pointer"
+          <button
             id="btnNext"
-            src="/random-english-day/images/icon/next.png"
-            width="30px"
-            height="30px"
-          />
+            type="button"
+            aria-label="Next speaker"
+            class="control-icon-btn"
+          >
+            <img
+              src="/random-english-day/images/icon/next.png"
+              width="20px"
+              height="20px"
+              alt=""
+            />
+          </button>
         </div>
       </div>
-    </div>
+    </section>
   </Card>
   <Card>
-    <div
-      id="tempRandomMember"
-      class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 min-h-[300px]"
-    >
-      <p
-        class="text-2xl md:text-3xl lg:text-4xl col-span-full text-center my-auto"
+    <section class="dashboard-panel gap-4">
+      <div
+        class="flex flex-col gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between"
       >
-        Just click random
-      </p>
-    </div>
+        <div>
+          <p class="panel-eyebrow">Speaking order</p>
+          <h3 class="text-xl font-semibold text-white sm:text-2xl">Queue</h3>
+        </div>
+        <p class="text-sm text-white/55">
+          The highlighted card is the current speaker. Use previous and next to
+          move manually.
+        </p>
+      </div>
+      <div
+        id="tempRandomMember"
+        class="queue-grid grid min-h-[220px] grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6"
+      >
+        <p
+          class="col-span-full my-auto text-center text-2xl font-semibold text-white/72 md:text-3xl"
+        >
+          Just click random
+        </p>
+      </div>
+    </section>
   </Card>
   <TimeModal />
 </div>

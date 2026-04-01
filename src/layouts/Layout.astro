@@ -15,7 +15,7 @@ const { pageTitle } = Astro.props;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Oxanium:wght@200..800&display=swap"
       rel="stylesheet"
     />
     <!-- Primary Meta Tags -->
@@ -47,17 +47,30 @@ const { pageTitle } = Astro.props;
   </head>
   <body
     class:list={[
-      "h-full",
+      "min-h-screen",
       "bg-[url('/random-english-day/images/background/light.jpg')]",
-      "bg-center bg-cover",
+      "bg-center bg-cover bg-fixed",
     ]}
   >
-    <div class:list={["container", "mx-auto", "py-4", "px-2", "md:px-0"]}>
-      <div class:list={["flex", "flex-col", "gap-4"]}>
-        <Header currentNav="Home" />
-        <main>
-          <slot />
-        </main>
+    <div class="viewport-fit-shell">
+      <div
+        class:list={[
+          "mx-auto",
+          "w-full",
+          "max-w-[1600px]",
+          "px-3",
+          "py-3",
+          "sm:px-4",
+          "lg:px-6",
+          "xl:px-8",
+        ]}
+      >
+        <div class:list={["flex", "flex-col", "gap-4"]}>
+          <Header currentNav="Home" />
+          <main>
+            <slot />
+          </main>
+        </div>
       </div>
     </div>
   </body>

@@ -20,6 +20,7 @@ const state = {
 };
 
 const elements = {
+  allMemberCount: document.querySelector("#allMemberCount"),
   bestTime: document.querySelector("#bestTimeTotal"),
   btnAdd: document.querySelector("#btnAdd"),
   btnBack: document.querySelector("#btnBack"),
@@ -29,12 +30,16 @@ const elements = {
   btnReduce: document.querySelector("#btnReduce"),
   btnReset: document.querySelector("#btnReset"),
   btnStart: document.querySelector("#btnStart"),
+  currentSpeakerLabel: document.querySelector("#currentSpeakerLabel"),
   inputMember: document.querySelector("#inputMember"),
   modeIcon: document.querySelector("#icMode"),
+  queueMemberCount: document.querySelector("#queueMemberCount"),
   saveTotalTime: document.querySelector("#saveTotalTime"),
+  selectedMemberCount: document.querySelector("#selectedMemberCount"),
   startIcon: document.querySelector("#icStart"),
   templateMember: document.querySelector("#templateMember"),
   timer: document.querySelector("#timer"),
+  timePerMemberLabel: document.querySelector("#timePerMemberLabel"),
   timeModal: document.querySelector("#timeModal"),
   topicName: document.querySelector("#topicsName"),
   totalTime: document.querySelector("#totalTime"),
@@ -47,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   bindEvents();
+  updateMemberMetrics();
   updateBestTimeDisplay();
   updateTotalTimeDisplay();
   resetTimer();
@@ -80,7 +86,7 @@ function bindEvents() {
     adjustTotalTime(-TIME_STEP),
   );
   elements.saveTotalTime.addEventListener("click", () => {
-    elements.timeModal.classList.add("hidden");
+    elements.timeModal.style.display = "none";
     resetTimer();
   });
 }
@@ -114,6 +120,7 @@ function handleAddMember(event) {
     createMemberTemplate(memberName),
   );
   elements.inputMember.value = "";
+  updateMemberMetrics();
   updateBestTimeDisplay();
 }
 
@@ -131,6 +138,7 @@ function handleMemberToggle(event) {
   }
 
   selectedMember.isChecked = checkbox.checked;
+  updateMemberMetrics();
   updateBestTimeDisplay();
 }
 
@@ -143,21 +151,41 @@ function handleRandomize() {
   resetTimer();
   setCurrentMember(state.currentMemberIndex);
   updateNavigationButtons();
+  updateMemberMetrics();
   updateBestTimeDisplay();
 }
 
 function createMemberTemplate(memberName) {
+  const escapedMemberName = escapeHtml(memberName);
+
   return `
-    <li class="flex items-center">
-      <label class="flex items-center cursor-pointer">
-        <input type="checkbox" class="hidden" checked id="${memberName}">
-        <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
-          <div class="dot w-6 h-6 rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out"></div>
+    <li>
+      <label class="member-item flex items-center cursor-pointer justify-between gap-4 rounded-2xl border border-white/8 px-4 py-3">
+        <div class="flex items-center gap-4">
+          <input type="checkbox" class="hidden" checked id="${escapedMemberName}">
+          <div class="toggle relative h-6 w-12 rounded-full bg-white/16 shadow-inner ring-1 ring-inset ring-white/10">
+            <div class="dot absolute top-0 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out"></div>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-base font-semibold text-white sm:text-lg">${escapedMemberName}</span>
+            <span class="text-xs uppercase tracking-[0.24em] text-white/42">Ready for round</span>
+          </div>
         </div>
-        <span class="text-xl ml-3">${memberName}</span>
+        <span class="rounded-full border border-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-white/46">
+          Active
+        </span>
       </label>
     </li>
   `;
+}
+
+function escapeHtml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function getSelectedMembers() {
@@ -183,6 +211,7 @@ function renderRandomizedMembers() {
         Select at least one member
       </p>
     `;
+    updateSessionMetrics();
     return;
   }
 
@@ -190,6 +219,7 @@ function renderRandomizedMembers() {
     .map((member, index) => createRandomMemberCard(member, index))
     .join("");
   elements.randomMember.innerHTML = cardsMarkup;
+  updateSessionMetrics();
 }
 
 function createRandomMemberCard(member, index) {
@@ -212,9 +242,10 @@ function createRandomMemberCard(member, index) {
       `;
 
   return `
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center justify-center gap-3 text-center">
       ${imageMarkup}
-      <span class="mt-2">${index + 1}. ${member.mem}</span>
+      <span class="text-sm uppercase tracking-[0.2em] text-white/42">${index + 1}</span>
+      <span class="font-semibold text-white">${member.mem}</span>
     </div>
   `;
 }
@@ -265,6 +296,41 @@ function updateTotalTimeDisplay() {
   updateTimeButtons();
 }
 
+function updateMemberMetrics() {
+  if (elements.selectedMemberCount) {
+    elements.selectedMemberCount.textContent = String(
+      getSelectedMembers().length,
+    );
+  }
+
+  if (elements.allMemberCount) {
+    elements.allMemberCount.textContent = String(state.members.length);
+  }
+
+  updateSessionMetrics();
+}
+
+function updateSessionMetrics() {
+  if (elements.queueMemberCount) {
+    const queueCount =
+      state.randomizedMembers.length || getSelectedMembers().length;
+    elements.queueMemberCount.textContent = String(queueCount);
+  }
+
+  if (elements.timePerMemberLabel) {
+    elements.timePerMemberLabel.textContent = formatTime(
+      Math.max(state.timePerMember, 0),
+    );
+  }
+
+  if (elements.currentSpeakerLabel) {
+    const currentSpeaker =
+      state.randomizedMembers[state.currentMemberIndex]?.mem;
+    elements.currentSpeakerLabel.textContent =
+      currentSpeaker || "Waiting to start";
+  }
+}
+
 function updateTimeButtons() {
   elements.btnAdd.classList.toggle(
     "disabled-btn",
@@ -277,7 +343,7 @@ function updateTimeButtons() {
 }
 
 function openTimeModal() {
-  elements.timeModal.classList.remove("hidden");
+  elements.timeModal.style.display = "flex";
   updateTimeButtons();
 }
 
@@ -300,6 +366,7 @@ function resetTimer() {
   state.timePerMember = calculateTimePerMember();
   updateTimerDisplay(state.timePerMember);
   setTimerButtonToStart();
+  updateSessionMetrics();
 }
 
 function calculateTimePerMember() {
@@ -323,6 +390,7 @@ function toggleMode() {
     elements.modeIcon.src = "/random-english-day/icons/light_mode.svg";
     document.body.style.backgroundImage =
       "url('/random-english-day/images/background/dark.jpg')";
+    document.body.dataset.theme = DARK_MODE;
     elements.btnMode.dataset.mode = DARK_MODE;
     return;
   }
@@ -330,6 +398,7 @@ function toggleMode() {
   elements.modeIcon.src = "/random-english-day/icons/dark_mode.svg";
   document.body.style.backgroundImage =
     "url('/random-english-day/images/background/light.jpg')";
+  document.body.dataset.theme = LIGHT_MODE;
   elements.btnMode.dataset.mode = LIGHT_MODE;
 }
 
@@ -360,12 +429,14 @@ function setTimerButtonToStop() {
 
 function updateNavigationButtons() {
   const hasMembers = state.randomizedMembers.length > 0;
-  elements.btnBack.style.display =
-    hasMembers && state.currentMemberIndex > 0 ? "block" : "none";
-  elements.btnNext.style.display =
-    hasMembers && state.currentMemberIndex < state.randomizedMembers.length - 1
-      ? "block"
-      : "none";
+  const canGoBack = hasMembers && state.currentMemberIndex > 0;
+  const canGoNext =
+    hasMembers && state.currentMemberIndex < state.randomizedMembers.length - 1;
+
+  elements.btnBack.classList.remove("disabled-btn");
+  elements.btnNext.classList.remove("disabled-btn");
+  elements.btnBack.setAttribute("aria-hidden", String(!canGoBack));
+  elements.btnNext.setAttribute("aria-hidden", String(!canGoNext));
 }
 
 function updateTimerDisplay(seconds) {
@@ -389,6 +460,8 @@ function setCurrentMember(index) {
   if (memberCards[index]) {
     memberCards[index].classList.add("current-member");
   }
+
+  updateSessionMetrics();
 }
 
 function startTimer() {

@@ -9,43 +9,67 @@ for (const mem in Members) {
 ---
 
 <Card>
-  <div class="min-h-[700px] flex flex-col">
-    <div class="flex justify-between">
-      <h2 class="text-2xl mb-4">Team Member</h2>
+  <section class="dashboard-panel dashboard-panel-members">
+    <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="panel-eyebrow">Roster control</p>
+        <h2 class="text-2xl font-semibold text-white sm:text-3xl">Team Members</h2>
+      </div>
+      <div class="grid grid-cols-2 gap-3 sm:min-w-[250px]">
+        <div class="metric-tile">
+          <span class="metric-label">Selected</span>
+          <span id="selectedMemberCount" class="metric-value">0</span>
+        </div>
+        <div class="metric-tile">
+          <span class="metric-label">Total</span>
+          <span id="allMemberCount" class="metric-value">0</span>
+        </div>
+      </div>
     </div>
-    <div class="grow">
+    <div class="mt-4 grow overflow-hidden">
       <ul
         id="templateMember"
-        class="space-y-2 scrollable overflow-y-auto flex-grow max-h-[550px]"
+        class="member-list scrollable flex max-h-[44vh] flex-col gap-2 overflow-y-auto pr-1 lg:max-h-[52vh]"
       >
         {
           memberList.map((member) => (
             <li>
-              <label class="flex items-center cursor-pointer">
+              <label class="member-item flex items-center cursor-pointer justify-between gap-4 rounded-2xl border border-white/8 px-4 py-3">
+                <div class="flex items-center gap-4">
                 <input
                   type="checkbox"
                   class="hidden"
                   id={`${member.mem}`}
                   checked={member.isChecked as boolean}
                 />
-                <div class="toggle w-12 h-6 bg-gray-200 rounded-full shadow-inner relative">
-                  <div class="dot w-6 h-6 bg-[##F9A060] rounded-full shadow-md absolute top-0 transition-transform duration-300 ease-in-out" />
+                  <div class="toggle relative h-6 w-12 rounded-full bg-white/16 shadow-inner ring-1 ring-inset ring-white/10">
+                    <div class="dot absolute top-0 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-base font-semibold text-white sm:text-lg">{member.mem}</span>
+                    <span class="text-xs uppercase tracking-[0.24em] text-white/42">Ready for round</span>
+                  </div>
                 </div>
-                <span class="text-xl ml-3">{member.mem}</span>
+                <span class="rounded-full border border-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-white/46">
+                  Active
+                </span>
               </label>
             </li>
           ))
         }
       </ul>
     </div>
-    <div>
+    <div class="mt-4 border-t border-white/10 pt-4">
+      <label class="mb-2 block text-xs uppercase tracking-[0.24em] text-white/45" for="inputMember">
+        Add speaker
+      </label>
       <input
         id="inputMember"
         type="text"
         placeholder="Add a team member"
-        class="border border-gray-200 rounded p-2 focus:outline-none text-gray-700 w-full"
+        class="w-full rounded-2xl border border-white/12 bg-white/92 px-4 py-3 text-base text-slate-900 outline-none transition placeholder:text-slate-500 focus:border-[#ff8f52] focus:ring-2 focus:ring-[#ff8f52]/35"
         autocomplete="off"
       />
     </div>
-  </div>
+  </section>
 </Card>
