@@ -2,6 +2,7 @@
 import { Members } from "../data/members";
 import Card from "./Card.astro";
 import TimeModal from "./TimeModal.astro";
+import ResetModal from "./ResetModal.astro";
 let memberList: Record<string, string | boolean>[] = [];
 for (const mem in Members) {
   memberList.push({ mem, ...Members[mem] });
@@ -20,6 +21,45 @@ for (const mem in Members) {
             Today Topic
           </h2>
         </div>
+        <div class="flex md:flex-none gap-3">
+        <div class="inline-flex items-center self-start rounded-full text-2xl gap-3 py-1 md:py-2  text-white/75">
+          <button
+            id="btnSelectTopic"
+            type="button"
+            aria-label="Toggle select"
+            class="control-select-btn"
+          >
+            <img
+              src="/random-english-day/icons/lock.svg"
+              width="28px"
+              height="28px"
+              alt=""
+            />
+          </button>
+          <button
+            id="btnUsedTopic"
+            type="button"
+            aria-label="Toggle Used"
+            class="control-used-btn"
+          >
+            <img
+              src="/random-english-day/icons/cross.svg"
+              width="28px"
+              height="28px"
+              alt=""
+            />
+          </button>
+        </div>
+        <div
+          class="inline-flex items-center gap-2 self-start rounded-full border border-white/12 bg-white/10 px-4 py-3 text-lg font-semibold uppercase tracking-[0.22em] text-white/75"
+        >
+          <img
+            src="/random-english-day/icons/topic.svg"
+            width="30px"
+            height="30px"
+          /><span id="topicCount">
+          ??/??</span>
+        </div>
         <div
           class="hover:cursor-pointer inline-flex items-center gap-3 self-start rounded-full border border-white/12 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white/75"
           id="btnRandom"
@@ -30,7 +70,7 @@ for (const mem in Members) {
             height="30px"
           />
           Shuffle topic
-        </div>
+        </div></div>
       </div>
       <div
         class="hero-topic-wrap mt-1 flex min-h-[180px] items-center justify-center rounded-[24px] border border-white/10 px-4 py-6 sm:px-6 lg:min-h-[220px]"
@@ -41,6 +81,17 @@ for (const mem in Members) {
         >
           Just click random
         </p>
+      </div>
+      <div
+        class="hover:cursor-pointer inline-flex items-center gap-3 self-end rounded-full border border-white/12 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white/75"
+        id="btnResetTopic"
+      >
+        <img
+          src="/random-english-day/icons/reset.svg"
+          width="30px"
+          height="30px"
+        />
+        Reset
       </div>
     </section>
   </Card>
@@ -166,5 +217,6 @@ for (const mem in Members) {
     </section>
   </Card>
   <TimeModal />
+  <ResetModal />
 </div>
 <script></script>

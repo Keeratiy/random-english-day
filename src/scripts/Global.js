@@ -15,8 +15,10 @@ const state = {
   totalTime: DEFAULT_TOTAL_TIME,
   timePerMember: 0,
   currentMemberIndex: 0,
+  currentTopic: "",
   timerInterval: null,
   typewriterTimeout: null,
+  toggledTopics: {},
 };
 
 const elements = {
@@ -30,6 +32,9 @@ const elements = {
   btnReduce: document.querySelector("#btnReduce"),
   btnReset: document.querySelector("#btnReset"),
   btnStart: document.querySelector("#btnStart"),
+  btnResetTopic: document.querySelector("#btnResetTopic"),
+  btnSelectTopic: document.querySelector("#btnSelectTopic"),
+  btnUsedTopic: document.querySelector("#btnUsedTopic"),
   currentSpeakerLabel: document.querySelector("#currentSpeakerLabel"),
   inputMember: document.querySelector("#inputMember"),
   modeIcon: document.querySelector("#icMode"),
@@ -41,12 +46,16 @@ const elements = {
   timer: document.querySelector("#timer"),
   timePerMemberLabel: document.querySelector("#timePerMemberLabel"),
   timeModal: document.querySelector("#timeModal"),
+  resetModal: document.querySelector("#resetModal"),
+  resetConfirm: document.querySelector("#resetConfirm"),
+  resetCancle: document.querySelector("#resetCancle"),
   topicName: document.querySelector("#topicsName"),
   totalTime: document.querySelector("#totalTime"),
   randomMember: document.querySelector("#tempRandomMember"),
+  topicCount: document.querySelector("#topicCount"),
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   if (!hasRequiredElements()) {
     return;
   }
@@ -57,6 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
   updateTotalTimeDisplay();
   resetTimer();
   updateNavigationButtons();
+  
+  try {
+    await fetchTopicStats();
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 function buildInitialMembers() {
@@ -78,6 +93,9 @@ function bindEvents() {
   elements.btnMode.addEventListener("click", toggleMode);
   elements.btnStart.addEventListener("click", toggleTimer);
   elements.btnReset.addEventListener("click", resetTimer);
+  elements.btnResetTopic.addEventListener("click", resetTopic);
+  elements.btnSelectTopic.addEventListener("click", handleSelectTopic);
+  elements.btnUsedTopic.addEventListener("click", handleUsedTopic);
   elements.btnNext.addEventListener("click", () => changeMember(1));
   elements.btnBack.addEventListener("click", () => changeMember(-1));
   elements.timer.addEventListener("click", openTimeModal);
@@ -87,8 +105,12 @@ function bindEvents() {
   );
   elements.saveTotalTime.addEventListener("click", () => {
     elements.timeModal.style.display = "none";
-    resetTimer();
+
   });
+  elements.resetCancle.addEventListener("click", () => {
+    elements.resetModal.style.display = "none";
+  });
+  elements.resetConfirm.addEventListener("click", handleConfirmReset);
 }
 
 function handleAddMember(event) {
@@ -124,6 +146,21 @@ function handleAddMember(event) {
   updateBestTimeDisplay();
 }
 
+async function fetchTopicStats() {
+  const response = await fetch("/api/random-topic");
+  const data = await response.json();
+  topicTracker(data.usedCount, data.totalTopics);
+}
+
+function topicTracker(usedCount, totalTopics) {
+  elements.topicCount.innerHTML = `${usedCount}/${totalTopics}`;
+}
+
+function updateSelectButtonForTopic(topic) {
+  const active = Boolean(state.toggledTopics[topic]);
+  elements.btnSelectTopic.classList.toggle("active", active);
+}
+
 function handleMemberToggle(event) {
   const checkbox = event.target.closest('input[type="checkbox"]');
   if (!checkbox) {
@@ -138,21 +175,133 @@ function handleMemberToggle(event) {
   }
 
   selectedMember.isChecked = checkbox.checked;
+  const isTopicActive = Boolean(state.toggledTopics[state.currentTopic]);
+  if (isTopicActive) {
+    if (checkbox.checked) {
+      const alreadyExists =
+        state.randomizedMembers.some(
+          (member) => member.mem === selectedMember.mem
+        );
+
+      if (!alreadyExists) {
+        state.randomizedMembers.push(selectedMember);
+      }
+    } else {
+      state.randomizedMembers =
+        state.randomizedMembers.filter(
+          (member) => member.mem !== selectedMember.mem
+        );
+    }
+
+    renderRandomizedMembers();
+    resetTimer();
+    setCurrentMember(state.currentMemberIndex);
+  }
   updateMemberMetrics();
   updateBestTimeDisplay();
 }
 
-function handleRandomize() {
+async function getRandomTopic() {
+  const response = await fetch("/api/random-topic");
+  const data = await response.json();
+  return data;
+}
+
+async function handleRandomize() {
   state.randomizedMembers = shuffleMembers(getSelectedMembers());
   state.currentMemberIndex = 0;
 
   renderRandomizedMembers();
-  animateTopic(getRandomTopic());
+
+  const topicData = await getRandomTopic();
+  if (topicData.usedCount === topicData.totalTopics) {
+    elements.topicName.textContent =
+      "You have used all topics!";
+
+    state.currentTopic = "";
+    elements.btnSelectTopic.classList.remove("active");
+  } else {
+    state.currentTopic = topicData.topic;
+    state.toggledTopics[state.currentTopic] = false;
+
+    animateTopic(topicData.topic);
+    updateSelectButtonForTopic(state.currentTopic);
+  }
+
+  topicTracker(topicData.usedCount, topicData.totalTopics);
+
   resetTimer();
   setCurrentMember(state.currentMemberIndex);
   updateNavigationButtons();
   updateMemberMetrics();
   updateBestTimeDisplay();
+}
+
+
+async function handleSelectTopic() {
+  if (!state.currentTopic) {
+    return;
+  }
+
+  state.toggledTopics[state.currentTopic] = !state.toggledTopics[state.currentTopic];
+
+  updateSelectButtonForTopic(state.currentTopic);
+
+  const selectedMembers = getSelectedMembers();
+
+  state.randomizedMembers =
+  state.randomizedMembers.filter((member) =>
+    selectedMembers.some(
+      (selected) => selected.mem === member.mem
+    )
+  );
+
+  state.currentMemberIndex = 0;
+  renderRandomizedMembers();
+  setCurrentMember(state.currentMemberIndex);
+  updateNavigationButtons();
+  updateMemberMetrics();
+  updateBestTimeDisplay();
+  resetTimer();
+}
+
+async function handleUsedTopic() {
+  if (!state.currentTopic) {
+    return;
+  }
+
+  try {
+    await fetch("/api/used-topic", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        topic: state.currentTopic,
+      }),
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  
+  const topicData = await getRandomTopic();
+
+  if (topicData.allUsed) {
+    elements.topicName.textContent =
+      "You have used all topics!";
+
+    topicTracker(
+      topicData.usedCount,
+      topicData.totalTopics
+    );
+
+  return;
+  }
+
+  state.currentTopic = topicData.topic;
+  animateTopic(topicData.topic);
+  topicTracker(topicData.usedCount, topicData.totalTopics);
+  updateSelectButtonForTopic(state.currentTopic);
 }
 
 function createMemberTemplate(memberName) {
@@ -214,7 +363,7 @@ function renderRandomizedMembers() {
     updateSessionMetrics();
     return;
   }
-
+  
   const cardsMarkup = state.randomizedMembers
     .map((member, index) => createRandomMemberCard(member, index))
     .join("");
@@ -248,11 +397,6 @@ function createRandomMemberCard(member, index) {
       <span class="font-semibold text-white">${member.mem}</span>
     </div>
   `;
-}
-
-function getRandomTopic() {
-  const randomTopicIndex = Math.floor(Math.random() * Topics.length);
-  return Topics[randomTopicIndex];
 }
 
 function animateTopic(fullText) {
@@ -359,6 +503,27 @@ function adjustTotalTime(change) {
 
   state.totalTime = nextTotalTime;
   updateTotalTimeDisplay();
+}
+
+function resetTopic() {
+  elements.resetModal.style.display = "flex";
+}
+
+async function handleConfirmReset() {
+  elements.resetModal.style.display = "none";
+
+  try {
+    await fetch("/api/reset-topics", { method: "POST" });
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+
+  state.currentTopic = "";
+  elements.topicName.textContent = "Just click random";
+  elements.topicCount.textContent = `0/${Topics.length}`;
+  state.toggledTopics = {};
+  elements.btnSelectTopic.classList.remove("active");
 }
 
 function resetTimer() {

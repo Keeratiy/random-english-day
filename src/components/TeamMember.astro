@@ -10,7 +10,7 @@ for (const mem in Members) {
 
 <Card>
   <section class="dashboard-panel dashboard-panel-members">
-    <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p class="panel-eyebrow">Roster control</p>
         <h2 class="text-2xl font-semibold text-white sm:text-3xl">Team Members</h2>
@@ -29,7 +29,7 @@ for (const mem in Members) {
     <div class="mt-4 grow overflow-hidden">
       <ul
         id="templateMember"
-        class="member-list scrollable flex max-h-[44vh] flex-col gap-2 overflow-y-auto pr-1 lg:max-h-[52vh]"
+        class="member-list scrollable flex max-h-[44vh] flex-col gap-2 overflow-y-auto pr-1 lg:max-h-[100vh]"
       >
         {
           memberList.map((member) => (
