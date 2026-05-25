@@ -22,54 +22,56 @@ for (const mem in Members) {
           </h2>
         </div>
         <div class="flex md:flex-none gap-3">
-        <div class="inline-flex items-center self-start rounded-full text-2xl gap-3 py-1 md:py-2  text-white/75">
-          <button
-            id="btnSelectTopic"
-            type="button"
-            aria-label="Toggle select"
-            class="control-select-btn"
+          <div
+            class="inline-flex items-center self-start rounded-full text-2xl gap-3 py-1 md:py-2 text-white/75"
+          >
+            <button
+              id="btnSelectTopic"
+              type="button"
+              aria-label="Toggle select"
+              class="control-select-btn"
+            >
+              <img
+                src="/random-english-day/icons/lock.svg"
+                width="28px"
+                height="28px"
+                alt=""
+              />
+            </button>
+            <button
+              id="btnUsedTopic"
+              type="button"
+              aria-label="Toggle Used"
+              class="control-used-btn"
+            >
+              <img
+                src="/random-english-day/icons/cross.svg"
+                width="28px"
+                height="28px"
+                alt=""
+              />
+            </button>
+          </div>
+          <div
+            class="inline-flex items-center gap-2 self-start rounded-full border border-white/12 bg-white/10 px-4 py-3 text-lg font-semibold uppercase tracking-[0.22em] text-white/75"
           >
             <img
-              src="/random-english-day/icons/lock.svg"
-              width="28px"
-              height="28px"
-              alt=""
-            />
-          </button>
-          <button
-            id="btnUsedTopic"
-            type="button"
-            aria-label="Toggle Used"
-            class="control-used-btn"
+              src="/random-english-day/icons/topic.svg"
+              width="30px"
+              height="30px"
+            /><span id="topicCount"> ??/??</span>
+          </div>
+          <div
+            class="hover:cursor-pointer inline-flex items-center gap-3 self-start rounded-full border border-white/12 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white/75"
+            id="btnRandom"
           >
             <img
-              src="/random-english-day/icons/cross.svg"
-              width="28px"
-              height="28px"
-              alt=""
+              src="/random-english-day/icons/random.svg"
+              width="30px"
+              height="30px"
             />
-          </button>
-        </div>
-        <div
-          class="inline-flex items-center gap-2 self-start rounded-full border border-white/12 bg-white/10 px-4 py-3 text-lg font-semibold uppercase tracking-[0.22em] text-white/75"
-        >
-          <img
-            src="/random-english-day/icons/topic.svg"
-            width="30px"
-            height="30px"
-          /><span id="topicCount">
-          ??/??</span>
-        </div>
-        <div
-          class="hover:cursor-pointer inline-flex items-center gap-3 self-start rounded-full border border-white/12 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white/75"
-          id="btnRandom"
-        >
-          <img
-            src="/random-english-day/icons/random.svg"
-            width="30px"
-            height="30px"
-          />
-          Shuffle topic
+            Shuffle topic
+          </div>
         </div>
       </div>
       <div
