@@ -1,6 +1,5 @@
 import { DARK_MODE, LIGHT_MODE, START, STOP } from "../config";
 import { Members } from "../data/members";
-import { Topics } from "../data/topics";
 import { createAvatar } from "@dicebear/core";
 import { croodles } from "@dicebear/collection";
 
@@ -19,6 +18,8 @@ const state = {
   timerInterval: null,
   typewriterTimeout: null,
   toggledTopics: {},
+  topic: [],
+  isLoadingTopics: false,
 };
 
 const elements = {
@@ -66,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateTotalTimeDisplay();
   resetTimer();
   updateNavigationButtons();
-  
+
   try {
     await fetchTopicStats();
   } catch (error) {
@@ -105,7 +106,6 @@ function bindEvents() {
   );
   elements.saveTotalTime.addEventListener("click", () => {
     elements.timeModal.style.display = "none";
-
   });
   elements.resetCancle.addEventListener("click", () => {
     elements.resetModal.style.display = "none";
@@ -146,10 +146,16 @@ function handleAddMember(event) {
   updateBestTimeDisplay();
 }
 
+async function fetchMockApi() {
+  const response = await fetch("https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic");
+  state.topic = await response.json();
+}
+
 async function fetchTopicStats() {
-  const response = await fetch("/api/random-topic");
-  const data = await response.json();
-  topicTracker(data.usedCount, data.totalTopics);
+    await fetchMockApi();
+    const usedCount = state.topic.filter((topic) => topic.is_used).length;
+    const totalTopics = state.topic.length;
+    topicTracker(usedCount, totalTopics);
 }
 
 function topicTracker(usedCount, totalTopics) {
@@ -178,19 +184,17 @@ function handleMemberToggle(event) {
   const isTopicActive = Boolean(state.toggledTopics[state.currentTopic]);
   if (isTopicActive) {
     if (checkbox.checked) {
-      const alreadyExists =
-        state.randomizedMembers.some(
-          (member) => member.mem === selectedMember.mem
-        );
+      const alreadyExists = state.randomizedMembers.some(
+        (member) => member.mem === selectedMember.mem,
+      );
 
       if (!alreadyExists) {
         state.randomizedMembers.push(selectedMember);
       }
     } else {
-      state.randomizedMembers =
-        state.randomizedMembers.filter(
-          (member) => member.mem !== selectedMember.mem
-        );
+      state.randomizedMembers = state.randomizedMembers.filter(
+        (member) => member.mem !== selectedMember.mem,
+      );
     }
 
     renderRandomizedMembers();
@@ -202,34 +206,41 @@ function handleMemberToggle(event) {
 }
 
 async function getRandomTopic() {
-  const response = await fetch("/api/random-topic");
-  const data = await response.json();
-  return data;
+  const unusedTopics = state.topic.filter((topic) => !topic.is_used);
+  const randomTopic =
+    unusedTopics[Math.floor(Math.random() * unusedTopics.length)];
+
+  return {
+    topic: randomTopic,
+    usedCount: state.topic.filter((topic) => topic.is_used).length,
+    totalTopics: state.topic.length,
+  };
 }
 
 async function handleRandomize() {
+    if (state.isLoadingTopics == true) {
+    return;
+  }
   state.randomizedMembers = shuffleMembers(getSelectedMembers());
   state.currentMemberIndex = 0;
 
   renderRandomizedMembers();
 
   const topicData = await getRandomTopic();
-  if (topicData.usedCount === topicData.totalTopics) {
-    elements.topicName.textContent =
-      "You have used all topics!";
+  if (!topicData.topic || topicData.usedCount === topicData.totalTopics) {
+    elements.topicName.textContent = "You have used all topics!";
 
     state.currentTopic = "";
     elements.btnSelectTopic.classList.remove("active");
-  } else {
+  } else if (topicData.topic) {
     state.currentTopic = topicData.topic;
     state.toggledTopics[state.currentTopic] = false;
 
-    animateTopic(topicData.topic);
+    animateTopic(topicData.topic.name || topicData.topic.topic);
     updateSelectButtonForTopic(state.currentTopic);
   }
 
-  topicTracker(topicData.usedCount, topicData.totalTopics);
-
+  await fetchTopicStats()
   resetTimer();
   setCurrentMember(state.currentMemberIndex);
   updateNavigationButtons();
@@ -237,23 +248,20 @@ async function handleRandomize() {
   updateBestTimeDisplay();
 }
 
-
 async function handleSelectTopic() {
-  if (!state.currentTopic) {
+  if (!state.currentTopic || state.isLoadingTopics == true) {
     return;
   }
 
-  state.toggledTopics[state.currentTopic] = !state.toggledTopics[state.currentTopic];
+  state.toggledTopics[state.currentTopic] =
+    !state.toggledTopics[state.currentTopic];
 
   updateSelectButtonForTopic(state.currentTopic);
 
   const selectedMembers = getSelectedMembers();
 
-  state.randomizedMembers =
-  state.randomizedMembers.filter((member) =>
-    selectedMembers.some(
-      (selected) => selected.mem === member.mem
-    )
+  state.randomizedMembers = state.randomizedMembers.filter((member) =>
+    selectedMembers.some((selected) => selected.mem === member.mem),
   );
 
   state.currentMemberIndex = 0;
@@ -266,41 +274,42 @@ async function handleSelectTopic() {
 }
 
 async function handleUsedTopic() {
-  if (!state.currentTopic) {
+  if (!state.currentTopic || state.isLoadingTopics == true) {
+    return;
+  }
+  state.isLoadingTopics = true;
+
+  try {
+    await fetch(
+      `https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${state.currentTopic.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          is_used: true,
+        }),
+      },
+    );
+  } catch (error) {
+    console.error(error);
+    return;
+  } finally {
+    state.isLoadingTopics = false;
+  }
+
+  const topicData = await getRandomTopic();
+
+  if (!topicData.topic || topicData.usedCount === topicData.totalTopics) {
+    await fetchTopicStats()
+    elements.topicName.textContent = "You have used all topics!";
     return;
   }
 
-  try {
-    await fetch("/api/used-topic", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        topic: state.currentTopic,
-      }),
-    });
-  } catch (error) {
-    console.error(error);
-  }
-  
-  const topicData = await getRandomTopic();
-
-  if (topicData.allUsed) {
-    elements.topicName.textContent =
-      "You have used all topics!";
-
-    topicTracker(
-      topicData.usedCount,
-      topicData.totalTopics
-    );
-
-  return;
-  }
-
   state.currentTopic = topicData.topic;
-  animateTopic(topicData.topic);
-  topicTracker(topicData.usedCount, topicData.totalTopics);
+  await fetchTopicStats()
+  animateTopic(topicData.topic.name || topicData.topic.topic);
   updateSelectButtonForTopic(state.currentTopic);
 }
 
@@ -363,7 +372,7 @@ function renderRandomizedMembers() {
     updateSessionMetrics();
     return;
   }
-  
+
   const cardsMarkup = state.randomizedMembers
     .map((member, index) => createRandomMemberCard(member, index))
     .join("");
@@ -509,21 +518,47 @@ function resetTopic() {
   elements.resetModal.style.display = "flex";
 }
 
+async function safeUpdateTopics(usedTopicsArray) {
+  for (const topic of usedTopicsArray) {
+    try {
+      await fetch(`https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${topic.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: topic.name,
+          is_used: false
+        })
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
 async function handleConfirmReset() {
   elements.resetModal.style.display = "none";
 
+  if (state.isLoadingTopics == true) {
+    return;
+  }
+  
+  state.isLoadingTopics = true;
+  elements.topicName.innerHTML = '<span class="loading"> Resetting topics. Might take a while!</span>';
   try {
-    await fetch("/api/reset-topics", { method: "POST" });
+    await safeUpdateTopics(state.topic);
   } catch (error) {
     console.error(error);
-    return;
+  } finally {
+    state.isLoadingTopics = false;
   }
 
   state.currentTopic = "";
   elements.topicName.textContent = "Just click random";
-  elements.topicCount.textContent = `0/${Topics.length}`;
+  elements.topicCount.textContent = `0/${state.topic.length}`;
   state.toggledTopics = {};
   elements.btnSelectTopic.classList.remove("active");
+  state.currentMemberIndex = 0;
+  setCurrentMember(state.currentMemberIndex);
 }
 
 function resetTimer() {
