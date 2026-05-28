@@ -15,6 +15,6 @@ export const Members: Record<string, Record<string, string | boolean>> = {
   Aon: { image: "/random-english-day/images/Aon.JPG", isChecked: false },
   Seerong: {
     image: "/random-english-day/images/Seerong.jpg",
-    isChecked: false,
+    isChecked: true,
   },
 };
