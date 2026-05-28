@@ -1,7 +1,7 @@
 <div id="resetModal" class="fixed inset-0 z-50 bg-slate-950/72 px-4 backdrop-blur-md" style="display: none;">
   <div class="w-full max-w-md rounded-[32px] border border-white/12 bg-[rgba(10,14,34,0.82)] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.45)] sm:p-7">
-    <h2 class="text-center text-2xl font-semibold text-white sm:text-3xl">Confirm Reset?</h2>
-    <p class="mt-2 text-center text-sm text-white/55">
+    <h2 id="resetHead" class="text-center text-2xl font-semibold text-white sm:text-3xl">Confirm Reset?</h2>
+    <p id="resetBody" class="mt-2 text-center text-sm text-white/55">
       All topics including what already been played will be reset.
     </p>
     <div class="mt-6 flex flex-row items-center gap-5">
@@ -11,7 +11,7 @@
         <button id="resetConfirm" class="w-full rounded-2xl bg-[#e24f4f] px-4 py-3 text-lg font-semibold text-slate-950 transition hover:bg-[#db8282] sm:text-xl">Confirm</button>
       </div>
       <div class="flex w-full justify-end">
-        <button id="resetCancle" class="w-full rounded-2xl bg-[#b9b9c2] px-4 py-3 text-lg font-semibold text-slate-950 transition hover:bg-[#ffffff] sm:text-xl">Cancle</button>
+        <button id="resetCancel" class="w-full rounded-2xl bg-[#b9b9c2] px-4 py-3 text-lg font-semibold text-slate-950 transition hover:bg-[#ffffff] sm:text-xl">Cancel</button>
       </div>
     </div>
   </div>
