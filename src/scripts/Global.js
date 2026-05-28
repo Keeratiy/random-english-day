@@ -569,6 +569,7 @@ async function handleConfirmReset() {
   elements.topicCount.textContent = `0/${state.topic.length}`;
   state.currentMemberIndex = 0;
   setCurrentMember(state.currentMemberIndex);
+  elements.btnUsedTopic.disabled = false;
 }
 
 function resetTimer() {
