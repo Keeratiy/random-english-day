@@ -2,7 +2,6 @@ import { DARK_MODE, LIGHT_MODE, START, STOP } from "../config";
 import { Members } from "../data/members";
 import { createAvatar } from "@dicebear/core";
 import { croodles } from "@dicebear/collection";
-
 const DEFAULT_TOTAL_TIME = 3600;
 const MIN_TOTAL_TIME = 600;
 const TIME_STEP = 300;
@@ -18,6 +17,7 @@ const state = {
   timerInterval: null,
   typewriterTimeout: null,
   topic: [],
+  isWaiting: true,
 };
 
 const elements = {
@@ -138,20 +138,17 @@ function handleAddMember(event) {
     "beforeend",
     createMemberTemplate(memberName),
   );
+  const newMember = state.members.at(-1);
 
-  if (state.currentTopic) {
-    const newMember = state.members.at(-1);
-
+  if (state.isWaiting) {
+    updateMemberMetrics();
+  } else {
     elements.inputMember.value = "";
     state.randomizedMembers.push(newMember);
     renderRandomizedMembers();
     resetTimer();
     updateMemberMetrics();
     updateBestTimeDisplay();
-  } else {
-    elements.inputMember.value = "";
-    updateMemberMetrics();
-    return;
   }
 }
 
@@ -174,9 +171,6 @@ function topicTracker(usedCount, totalTopics) {
 }
 
 function handleMemberToggle(event) {
-  if (!state.currentTopic) {
-    return;
-  }
   const checkbox = event.target.closest('input[type="checkbox"]');
   if (!checkbox) {
     return;
@@ -195,9 +189,12 @@ function handleMemberToggle(event) {
     const alreadyExists = state.randomizedMembers.some(
       (member) => member.mem === selectedMember.mem,
     );
-
-    if (!alreadyExists) {
-      state.randomizedMembers.push(selectedMember);
+    if (state.isWaiting) {
+      updateMemberMetrics();
+    } else {
+      if (!alreadyExists) {
+        state.randomizedMembers.push(selectedMember);
+      }
     }
   } else {
     state.randomizedMembers = state.randomizedMembers.filter(
@@ -234,20 +231,18 @@ async function getRandomTopic() {
 }
 
 async function handleRandomize() {
+  state.isWaiting = false;
+  elements.btnRandom.disabled = true;
   await fetchTopicStats();
-  state.randomizedMembers = shuffleMembers(getSelectedMembers());
-  state.currentMemberIndex = 0;
-  elements.btnUsedTopic.disabled = false;
-
-  renderRandomizedMembers();
-
   const topicData = await getRandomTopic();
   if (!topicData.topic || topicData.usedCount === topicData.totalTopics) {
     elements.topicName.textContent = "You have used all topics!";
     state.currentTopic = "";
   } else if (topicData.topic) {
     state.currentTopic = topicData.topic;
-
+    state.randomizedMembers = shuffleMembers(getSelectedMembers());
+    state.currentMemberIndex = 0;
+    renderRandomizedMembers();
     try {
       await fetch(
         `https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${state.currentTopic.id}`,
@@ -265,10 +260,11 @@ async function handleRandomize() {
       console.error(error);
       return;
     } finally {
-      state.currentTopic.is_used = true;
       animateTopic(topicData.topic.name || topicData.topic.topic);
     }
   }
+
+  elements.btnRandom.disabled = false;
   await fetchTopicStats();
   resetTimer();
   setCurrentMember(state.currentMemberIndex);
@@ -364,14 +360,18 @@ function shuffleMembers(members) {
 }
 
 function renderRandomizedMembers() {
-  if (state.randomizedMembers.length === 0) {
-    elements.randomMember.innerHTML = `
+  if (state.isWaiting) {
+    return;
+  } else {
+    if (state.randomizedMembers.length === 0) {
+      elements.randomMember.innerHTML = `
       <p class="text-2xl md:text-3xl lg:text-4xl col-span-full text-center my-auto">
         Select at least one member
       </p>
     `;
-    updateSessionMetrics();
-    return;
+      updateSessionMetrics();
+      return;
+    }
   }
 
   const cardsMarkup = state.randomizedMembers
@@ -434,7 +434,6 @@ function animateTopic(fullText) {
       TYPEWRITER_SPEED,
     );
   };
-
   writeNextCharacter();
 }
 
@@ -548,7 +547,7 @@ async function handleConfirmReset() {
   const defaultResetHeader = resetModalHeader.innerHTML;
   const resetModalBody = document.getElementById("resetBody");
   const defaultResetBody = resetModalBody.innerHTML;
-  elements.resetHead.innerHTML = '<span class="loader-dot"> Resetting</span>';
+  elements.resetHead.innerHTML = '<span class="loader-dot">Resetting</span>';
   elements.resetBody.innerHTML = '<span class="loader mt-2 mb-0"></span>';
   elements.topicName.innerHTML =
     '<span class="loader-dot"> Resetting topics. Might take a while!</span>';
