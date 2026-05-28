@@ -6,7 +6,7 @@ import { croodles } from "@dicebear/collection";
 const DEFAULT_TOTAL_TIME = 3600;
 const MIN_TOTAL_TIME = 600;
 const TIME_STEP = 300;
-const TYPEWRITER_SPEED = 50;
+const TYPEWRITER_SPEED = 40;
 
 const state = {
   members: buildInitialMembers(),
@@ -17,9 +17,7 @@ const state = {
   currentTopic: "",
   timerInterval: null,
   typewriterTimeout: null,
-  toggledTopics: {},
   topic: [],
-  isLoadingTopics: false,
 };
 
 const elements = {
@@ -34,7 +32,6 @@ const elements = {
   btnReset: document.querySelector("#btnReset"),
   btnStart: document.querySelector("#btnStart"),
   btnResetTopic: document.querySelector("#btnResetTopic"),
-  btnSelectTopic: document.querySelector("#btnSelectTopic"),
   btnUsedTopic: document.querySelector("#btnUsedTopic"),
   currentSpeakerLabel: document.querySelector("#currentSpeakerLabel"),
   inputMember: document.querySelector("#inputMember"),
@@ -49,11 +46,13 @@ const elements = {
   timeModal: document.querySelector("#timeModal"),
   resetModal: document.querySelector("#resetModal"),
   resetConfirm: document.querySelector("#resetConfirm"),
-  resetCancle: document.querySelector("#resetCancle"),
+  resetCancel: document.querySelector("#resetCancel"),
   topicName: document.querySelector("#topicsName"),
   totalTime: document.querySelector("#totalTime"),
   randomMember: document.querySelector("#tempRandomMember"),
   topicCount: document.querySelector("#topicCount"),
+  resetHead: document.querySelector("#resetHead"),
+  resetBody: document.querySelector("#resetBody"),
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -67,7 +66,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateTotalTimeDisplay();
   resetTimer();
   updateNavigationButtons();
-
   try {
     await fetchTopicStats();
   } catch (error) {
@@ -95,7 +93,6 @@ function bindEvents() {
   elements.btnStart.addEventListener("click", toggleTimer);
   elements.btnReset.addEventListener("click", resetTimer);
   elements.btnResetTopic.addEventListener("click", resetTopic);
-  elements.btnSelectTopic.addEventListener("click", handleSelectTopic);
   elements.btnUsedTopic.addEventListener("click", handleUsedTopic);
   elements.btnNext.addEventListener("click", () => changeMember(1));
   elements.btnBack.addEventListener("click", () => changeMember(-1));
@@ -107,7 +104,7 @@ function bindEvents() {
   elements.saveTotalTime.addEventListener("click", () => {
     elements.timeModal.style.display = "none";
   });
-  elements.resetCancle.addEventListener("click", () => {
+  elements.resetCancel.addEventListener("click", () => {
     elements.resetModal.style.display = "none";
   });
   elements.resetConfirm.addEventListener("click", handleConfirmReset);
@@ -141,33 +138,45 @@ function handleAddMember(event) {
     "beforeend",
     createMemberTemplate(memberName),
   );
-  elements.inputMember.value = "";
-  updateMemberMetrics();
-  updateBestTimeDisplay();
+
+  if (state.currentTopic) {
+    const newMember = state.members.at(-1);
+
+    elements.inputMember.value = "";
+    state.randomizedMembers.push(newMember);
+    renderRandomizedMembers();
+    resetTimer();
+    updateMemberMetrics();
+    updateBestTimeDisplay();
+  } else {
+    elements.inputMember.value = "";
+    updateMemberMetrics();
+    return;
+  }
 }
 
 async function fetchMockApi() {
-  const response = await fetch("https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic");
+  const response = await fetch(
+    "https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic",
+  );
   state.topic = await response.json();
 }
 
 async function fetchTopicStats() {
-    await fetchMockApi();
-    const usedCount = state.topic.filter((topic) => topic.is_used).length;
-    const totalTopics = state.topic.length;
-    topicTracker(usedCount, totalTopics);
+  await fetchMockApi();
+  const usedCount = state.topic.filter((topic) => topic.is_used).length;
+  const totalTopics = state.topic.length;
+  topicTracker(usedCount, totalTopics);
 }
 
 function topicTracker(usedCount, totalTopics) {
   elements.topicCount.innerHTML = `${usedCount}/${totalTopics}`;
 }
 
-function updateSelectButtonForTopic(topic) {
-  const active = Boolean(state.toggledTopics[topic]);
-  elements.btnSelectTopic.classList.toggle("active", active);
-}
-
 function handleMemberToggle(event) {
+  if (!state.currentTopic) {
+    return;
+  }
   const checkbox = event.target.closest('input[type="checkbox"]');
   if (!checkbox) {
     return;
@@ -181,32 +190,39 @@ function handleMemberToggle(event) {
   }
 
   selectedMember.isChecked = checkbox.checked;
-  const isTopicActive = Boolean(state.toggledTopics[state.currentTopic]);
-  if (isTopicActive) {
-    if (checkbox.checked) {
-      const alreadyExists = state.randomizedMembers.some(
-        (member) => member.mem === selectedMember.mem,
-      );
 
-      if (!alreadyExists) {
-        state.randomizedMembers.push(selectedMember);
-      }
-    } else {
-      state.randomizedMembers = state.randomizedMembers.filter(
-        (member) => member.mem !== selectedMember.mem,
-      );
+  if (checkbox.checked) {
+    const alreadyExists = state.randomizedMembers.some(
+      (member) => member.mem === selectedMember.mem,
+    );
+
+    if (!alreadyExists) {
+      state.randomizedMembers.push(selectedMember);
     }
-
-    renderRandomizedMembers();
-    resetTimer();
-    setCurrentMember(state.currentMemberIndex);
+  } else {
+    state.randomizedMembers = state.randomizedMembers.filter(
+      (member) => member.mem !== selectedMember.mem,
+    );
   }
+
+  renderRandomizedMembers();
+  resetTimer();
+  setCurrentMember(state.currentMemberIndex);
   updateMemberMetrics();
   updateBestTimeDisplay();
 }
 
 async function getRandomTopic() {
   const unusedTopics = state.topic.filter((topic) => !topic.is_used);
+
+  if (unusedTopics.length === 0) {
+    return {
+      topic: null,
+      usedCount: state.topic.length,
+      totalTopics: state.topic.length,
+    };
+  }
+
   const randomTopic =
     unusedTopics[Math.floor(Math.random() * unusedTopics.length)];
 
@@ -218,67 +234,54 @@ async function getRandomTopic() {
 }
 
 async function handleRandomize() {
-    if (state.isLoadingTopics == true) {
-    return;
-  }
+  await fetchTopicStats();
   state.randomizedMembers = shuffleMembers(getSelectedMembers());
   state.currentMemberIndex = 0;
+  elements.btnUsedTopic.disabled = false;
 
   renderRandomizedMembers();
 
   const topicData = await getRandomTopic();
   if (!topicData.topic || topicData.usedCount === topicData.totalTopics) {
     elements.topicName.textContent = "You have used all topics!";
-
     state.currentTopic = "";
-    elements.btnSelectTopic.classList.remove("active");
   } else if (topicData.topic) {
     state.currentTopic = topicData.topic;
-    state.toggledTopics[state.currentTopic] = false;
 
-    animateTopic(topicData.topic.name || topicData.topic.topic);
-    updateSelectButtonForTopic(state.currentTopic);
+    try {
+      await fetch(
+        `https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${state.currentTopic.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            is_used: true,
+          }),
+        },
+      );
+    } catch (error) {
+      console.error(error);
+      return;
+    } finally {
+      state.currentTopic.is_used = true;
+      animateTopic(topicData.topic.name || topicData.topic.topic);
+    }
   }
-
-  await fetchTopicStats()
+  await fetchTopicStats();
   resetTimer();
   setCurrentMember(state.currentMemberIndex);
   updateNavigationButtons();
   updateMemberMetrics();
   updateBestTimeDisplay();
-}
-
-async function handleSelectTopic() {
-  if (!state.currentTopic || state.isLoadingTopics == true) {
-    return;
-  }
-
-  state.toggledTopics[state.currentTopic] =
-    !state.toggledTopics[state.currentTopic];
-
-  updateSelectButtonForTopic(state.currentTopic);
-
-  const selectedMembers = getSelectedMembers();
-
-  state.randomizedMembers = state.randomizedMembers.filter((member) =>
-    selectedMembers.some((selected) => selected.mem === member.mem),
-  );
-
-  state.currentMemberIndex = 0;
-  renderRandomizedMembers();
-  setCurrentMember(state.currentMemberIndex);
-  updateNavigationButtons();
-  updateMemberMetrics();
-  updateBestTimeDisplay();
-  resetTimer();
 }
 
 async function handleUsedTopic() {
-  if (!state.currentTopic || state.isLoadingTopics == true) {
+  if (!state.currentTopic) {
     return;
   }
-  state.isLoadingTopics = true;
-
+  elements.btnUsedTopic.disabled = true;
   try {
     await fetch(
       `https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${state.currentTopic.id}`,
@@ -296,21 +299,19 @@ async function handleUsedTopic() {
     console.error(error);
     return;
   } finally {
-    state.isLoadingTopics = false;
   }
-
+  state.currentTopic.is_used = true;
   const topicData = await getRandomTopic();
 
   if (!topicData.topic || topicData.usedCount === topicData.totalTopics) {
-    await fetchTopicStats()
     elements.topicName.textContent = "You have used all topics!";
     return;
   }
 
+  await fetchTopicStats();
   state.currentTopic = topicData.topic;
-  await fetchTopicStats()
   animateTopic(topicData.topic.name || topicData.topic.topic);
-  updateSelectButtonForTopic(state.currentTopic);
+  elements.btnUsedTopic.disabled = false;
 }
 
 function createMemberTemplate(memberName) {
@@ -518,17 +519,24 @@ function resetTopic() {
   elements.resetModal.style.display = "flex";
 }
 
-async function safeUpdateTopics(usedTopicsArray) {
-  for (const topic of usedTopicsArray) {
+async function safeUpdateTopics(topicsArray) {
+  const usedTopics = topicsArray.filter((topic) => topic.is_used === true);
+
+  for (const topic of usedTopics) {
     try {
-      await fetch(`https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${topic.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: topic.name,
-          is_used: false
-        })
-      });
+      await fetch(
+        `https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${topic.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...topic,
+            is_used: false,
+          }),
+        },
+      );
     } catch (error) {
       console.error(error);
     }
@@ -536,27 +544,30 @@ async function safeUpdateTopics(usedTopicsArray) {
 }
 
 async function handleConfirmReset() {
-  elements.resetModal.style.display = "none";
-
-  if (state.isLoadingTopics == true) {
-    return;
-  }
-  
-  state.isLoadingTopics = true;
-  elements.topicName.innerHTML = '<span class="loading"> Resetting topics. Might take a while!</span>';
+  const resetModalHeader = document.getElementById("resetHead");
+  const defaultResetHeader = resetModalHeader.innerHTML;
+  const resetModalBody = document.getElementById("resetBody");
+  const defaultResetBody = resetModalBody.innerHTML;
+  elements.resetHead.innerHTML = '<span class="loader-dot"> Resetting</span>';
+  elements.resetBody.innerHTML = '<span class="loader mt-2 mb-0"></span>';
+  elements.topicName.innerHTML =
+    '<span class="loader-dot"> Resetting topics. Might take a while!</span>';
+  elements.resetConfirm.style.display = "none";
+  elements.resetCancel.style.display = "none";
   try {
     await safeUpdateTopics(state.topic);
   } catch (error) {
     console.error(error);
   } finally {
-    state.isLoadingTopics = false;
+    elements.resetHead.innerHTML = defaultResetHeader;
+    elements.resetBody.innerHTML = defaultResetBody;
+    elements.resetConfirm.style.display = "block";
+    elements.resetCancel.style.display = "block";
   }
-
+  elements.resetModal.style.display = "none";
   state.currentTopic = "";
   elements.topicName.textContent = "Just click random";
   elements.topicCount.textContent = `0/${state.topic.length}`;
-  state.toggledTopics = {};
-  elements.btnSelectTopic.classList.remove("active");
   state.currentMemberIndex = 0;
   setCurrentMember(state.currentMemberIndex);
 }
