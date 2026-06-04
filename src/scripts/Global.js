@@ -32,7 +32,6 @@ const elements = {
   btnReset: document.querySelector("#btnReset"),
   btnStart: document.querySelector("#btnStart"),
   btnResetTopic: document.querySelector("#btnResetTopic"),
-  btnUsedTopic: document.querySelector("#btnUsedTopic"),
   currentSpeakerLabel: document.querySelector("#currentSpeakerLabel"),
   inputMember: document.querySelector("#inputMember"),
   modeIcon: document.querySelector("#icMode"),
@@ -93,7 +92,6 @@ function bindEvents() {
   elements.btnStart.addEventListener("click", toggleTimer);
   elements.btnReset.addEventListener("click", resetTimer);
   elements.btnResetTopic.addEventListener("click", resetTopic);
-  elements.btnUsedTopic.addEventListener("click", handleUsedTopic);
   elements.btnNext.addEventListener("click", () => changeMember(1));
   elements.btnBack.addEventListener("click", () => changeMember(-1));
   elements.timer.addEventListener("click", openTimeModal);
@@ -101,9 +99,7 @@ function bindEvents() {
   elements.btnReduce.addEventListener("click", () =>
     adjustTotalTime(-TIME_STEP),
   );
-  elements.saveTotalTime.addEventListener("click", () => {
-    elements.timeModal.style.display = "none";
-  });
+  elements.saveTotalTime.addEventListener("click", handleUpdateTime);
   elements.resetCancel.addEventListener("click", () => {
     elements.resetModal.style.display = "none";
   });
@@ -142,6 +138,7 @@ function handleAddMember(event) {
 
   if (state.isWaiting) {
     updateMemberMetrics();
+    resetTimer();
   } else {
     elements.inputMember.value = "";
     state.randomizedMembers.push(newMember);
@@ -271,43 +268,6 @@ async function handleRandomize() {
   updateNavigationButtons();
   updateMemberMetrics();
   updateBestTimeDisplay();
-}
-
-async function handleUsedTopic() {
-  if (!state.currentTopic) {
-    return;
-  }
-  elements.btnUsedTopic.disabled = true;
-  try {
-    await fetch(
-      `https://6a1548aa91ff9a63de07ce3e.mockapi.io/api/v1/topic/${state.currentTopic.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          is_used: true,
-        }),
-      },
-    );
-  } catch (error) {
-    console.error(error);
-    return;
-  } finally {
-  }
-  state.currentTopic.is_used = true;
-  const topicData = await getRandomTopic();
-
-  if (!topicData.topic || topicData.usedCount === topicData.totalTopics) {
-    elements.topicName.textContent = "You have used all topics!";
-    return;
-  }
-
-  await fetchTopicStats();
-  state.currentTopic = topicData.topic;
-  animateTopic(topicData.topic.name || topicData.topic.topic);
-  elements.btnUsedTopic.disabled = false;
 }
 
 function createMemberTemplate(memberName) {
@@ -542,6 +502,11 @@ async function safeUpdateTopics(topicsArray) {
   }
 }
 
+function handleUpdateTime() {
+  elements.timeModal.style.display = "none";
+  resetTimer();
+}
+
 async function handleConfirmReset() {
   const resetModalHeader = document.getElementById("resetHead");
   const defaultResetHeader = resetModalHeader.innerHTML;
@@ -569,7 +534,6 @@ async function handleConfirmReset() {
   elements.topicCount.textContent = `0/${state.topic.length}`;
   state.currentMemberIndex = 0;
   setCurrentMember(state.currentMemberIndex);
-  elements.btnUsedTopic.disabled = false;
 }
 
 function resetTimer() {
